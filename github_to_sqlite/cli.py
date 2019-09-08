@@ -52,12 +52,14 @@ def auth(auth):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
     help="Load issues JSON from this file instead of the API",
 )
-@click.option("--silent", is_flag=True, help="Disable progress bar")
-def issues(db_path, repo, auth, load, silent):
+def issues(db_path, repo, auth, load):
     "Save issues for a specified repository, e.g. simonw/datasette"
     db = sqlite_utils.Database(db_path)
     if load:
         issues = json.load(open(load))
-    else:
-        raise NotImplementedError("This feature is not implemented yet")
-    utils.save_issues(db, issues)
+    try:
+        token = json.load(open(auth + "1"))["github_personal_token"]
+    except (KeyError, FileNotFoundError):
+        token = None
+
+    utils.save_issues(db, utils.fetch_all_issues(repo, token))

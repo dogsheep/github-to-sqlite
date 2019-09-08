@@ -1,3 +1,6 @@
+import requests
+
+
 def save_issues(db, issues):
     if "milestones" not in db.table_names():
         db["milestones"].create({"id": int}, pk="id")
@@ -66,3 +69,22 @@ def save_milestone(db, milestone):
         )
         .last_pk
     )
+
+
+def fetch_all_issues(repo, token=None):
+    headers = {}
+    if token is not None:
+        headers["Authorization"] = "token {}".format(token)
+    url = "https://api.github.com/repos/{}/issues?state=all&filter=all".format(repo)
+    for issues in paginate(url, headers):
+        yield from issues
+
+
+def paginate(url, headers=None):
+    while url:
+        response = requests.get(url, headers=headers)
+        try:
+            url = response.links.get("next").get("url")
+        except AttributeError:
+            url = None
+        yield response.json()
