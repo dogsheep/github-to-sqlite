@@ -58,7 +58,7 @@ def issues(db_path, repo, auth, load):
     if load:
         issues = json.load(open(load))
     try:
-        token = json.load(open(auth + "1"))["github_personal_token"]
+        token = json.load(open(auth))["github_personal_token"]
     except (KeyError, FileNotFoundError):
         token = None
 
