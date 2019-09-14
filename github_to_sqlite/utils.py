@@ -54,6 +54,10 @@ def save_user(db, user):
         for key, value in user.items()
         if (key in ("avatar_url", "html_url") or not key.endswith("url"))
     }
+    # If this user was nested in repo they will be missing several fields
+    # so fill in 'name' from 'login' so Datasette foreign keys display
+    if to_save.get("name") is None:
+        to_save["name"] = to_save["login"]
     return db["users"].upsert(to_save, pk="id").last_pk
 
 
@@ -71,13 +75,61 @@ def save_milestone(db, milestone):
     )
 
 
+def fetch_repo(repo, token=None):
+    headers = make_headers(token)
+    owner, slug = repo.split("/")
+    url = "https://api.github.com/repos/{}/{}".format(owner, slug)
+    return requests.get(url, headers=headers).json()
+
+
+def save_repo(db, repo):
+    # Remove all url fields except html_url
+    to_save = {
+        key: value
+        for key, value in repo.items()
+        if (key == "html_url") or not key.endswith("url")
+    }
+    to_save["owner"] = save_user(db, to_save["owner"])
+    repo_id = (
+        db["repos"]
+        .upsert(to_save, pk="id", foreign_keys=(("owner", "users", "id"),))
+        .last_pk
+    )
+    return repo_id
+
+
+def ensure_repo_fts(db):
+    if "repos_fts" not in db.table_names():
+        db["repos"].enable_fts(["name", "description"], create_triggers=True)
+
+
 def fetch_all_issues(repo, token=None):
-    headers = {}
-    if token is not None:
-        headers["Authorization"] = "token {}".format(token)
+    headers = make_headers(token)
     url = "https://api.github.com/repos/{}/issues?state=all&filter=all".format(repo)
     for issues in paginate(url, headers):
         yield from issues
+
+
+def fetch_all_starred(username=None, token=None):
+    assert username or token, "Must provide username= or token= or both"
+    headers = make_headers(token)
+    headers["Accept"] = "application/vnd.github.v3.star+json"
+    if username:
+        url = "https://api.github.com/users/{}/starred".format(username)
+    else:
+        url = "https://api.github.com/user/starred"
+    for stars in paginate(url, headers):
+        yield from stars
+
+
+def fetch_user(username=None, token=None):
+    assert username or token, "Must provide username= or token= or both"
+    headers = make_headers(token)
+    if username:
+        url = "https://api.github.com/users/{}".format(username)
+    else:
+        url = "https://api.github.com/user"
+    return requests.get(url, headers=headers).json()
 
 
 def paginate(url, headers=None):
@@ -88,3 +140,24 @@ def paginate(url, headers=None):
         except AttributeError:
             url = None
         yield response.json()
+
+
+def make_headers(token=None):
+    headers = {}
+    if token is not None:
+        headers["Authorization"] = "token {}".format(token)
+    return headers
+
+
+def save_stars(db, user, stars):
+    user_id = save_user(db, user)
+
+    for star in stars:
+        starred_at = star["starred_at"]
+        repo = star["repo"]
+        repo_id = save_repo(db, repo)
+        db["stars"].upsert(
+            {"user": user_id, "repo": repo_id, "starred_at": starred_at},
+            pk=("user", "repo"),
+            foreign_keys=("user", "repo"),
+        )

@@ -63,3 +63,45 @@ def issues(db_path, repo, auth, load):
         token = None
 
     utils.save_issues(db, utils.fetch_all_issues(repo, token))
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("username", type=str, required=False)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--load",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    help="Load issues JSON from this file instead of the API",
+)
+def starred(db_path, username, auth, load):
+    "Save repos starred by the specified (or authenticated) username"
+    db = sqlite_utils.Database(db_path)
+    try:
+        token = json.load(open(auth))["github_personal_token"]
+    except (KeyError, FileNotFoundError):
+        token = None
+
+    if load:
+        stars = json.load(open(load))
+    else:
+        stars = utils.fetch_all_starred(username, token)
+
+    # Which user are we talking about here?
+    if username:
+        user = utils.fetch_user(username, token)
+    else:
+        user = utils.fetch_user(token=token)
+
+    utils.save_stars(db, user, stars)
+    utils.ensure_repo_fts(db)

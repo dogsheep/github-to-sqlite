@@ -96,6 +96,7 @@ def test_users(db):
             "html_url": "https://github.com/simonw",
             "type": "User",
             "site_admin": 0,
+            "name": "simonw",
         }
     ] == user_rows
 
