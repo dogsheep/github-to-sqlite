@@ -90,6 +90,7 @@ def save_repo(db, repo):
         if (key == "html_url") or not key.endswith("url")
     }
     to_save["owner"] = save_user(db, to_save["owner"])
+    to_save["license"] = save_license(db, to_save["license"])
     repo_id = (
         db["repos"]
         .upsert(to_save, pk="id", foreign_keys=(("owner", "users", "id"),))
@@ -98,9 +99,21 @@ def save_repo(db, repo):
     return repo_id
 
 
+def save_license(db, license):
+    if license is None:
+        return None
+    return db["licenses"].upsert(license, pk="key").last_pk
+
+
 def ensure_repo_fts(db):
     if "repos_fts" not in db.table_names():
         db["repos"].enable_fts(["name", "description"], create_triggers=True)
+
+
+def ensure_foreign_keys(db):
+    for expected_key in (("repos", "license", "licenses", "key"),):
+        if expected_key not in db[expected_key[0]].foreign_keys:
+            db[expected_key[0]].add_foreign_key(*expected_key[1:])
 
 
 def fetch_all_issues(repo, token=None):

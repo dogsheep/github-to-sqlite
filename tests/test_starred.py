@@ -3,6 +3,7 @@ import json
 import pathlib
 import pytest
 import sqlite_utils
+from sqlite_utils.db import ForeignKey
 
 
 @pytest.fixture
@@ -19,11 +20,23 @@ def user():
 def db(starred, user):
     db = sqlite_utils.Database(memory=True)
     utils.save_stars(db, user, starred)
+    utils.ensure_foreign_keys(db)
+    utils.ensure_repo_fts(db)
     return db
 
 
 def test_tables(db):
-    assert {"repos", "stars", "users"} == set(db.table_names())
+    assert {
+        "repos",
+        "repos_fts",
+        "repos_fts_config",
+        "repos_fts_idx",
+        "stars",
+        "repos_fts_docsize",
+        "repos_fts_data",
+        "licenses",
+        "users",
+    } == set(db.table_names())
 
 
 def test_repos(db):
@@ -56,7 +69,7 @@ def test_repos(db):
             "archived": 0,
             "disabled": 0,
             "open_issues_count": 0,
-            "license": None,
+            "license": "mit",
             "forks": 0,
             "open_issues": 0,
             "watchers": 2,
@@ -65,6 +78,31 @@ def test_repos(db):
     ] == repos
 
 
+def test_licenses(db):
+    licenses = list(db["licenses"].rows)
+    assert [
+        {
+            "key": "mit",
+            "name": "MIT License",
+            "spdx_id": "MIT",
+            "url": "https://api.github.com/licenses/mit",
+            "node_id": "MDc6TGljZW5zZTEz",
+        }
+    ] == licenses
+
+
 def test_stars(db):
     stars = list(db["stars"].rows)
     assert [{"user": 9599, "repo": 123, "starred_at": "2019-09-14T08:35:12Z"}] == stars
+
+
+def test_foreign_keys(db):
+    foreign_keys = db["repos"].foreign_keys
+    assert [
+        ForeignKey(
+            table="repos", column="license", other_table="licenses", other_column="key"
+        ),
+        ForeignKey(
+            table="repos", column="owner", other_table="users", other_column="id"
+        ),
+    ] == sorted(foreign_keys)

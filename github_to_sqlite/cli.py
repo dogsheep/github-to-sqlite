@@ -105,3 +105,4 @@ def starred(db_path, username, auth, load):
 
     utils.save_stars(db, user, stars)
     utils.ensure_repo_fts(db)
+    utils.ensure_foreign_keys(db)

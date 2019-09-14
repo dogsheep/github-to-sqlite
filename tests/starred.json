@@ -89,7 +89,13 @@
             "archived": false,
             "disabled": false,
             "open_issues_count": 0,
-            "license": null,
+            "license": {
+                "key": "mit",
+                "name": "MIT License",
+                "spdx_id": "MIT",
+                "url": "https://api.github.com/licenses/mit",
+                "node_id": "MDc6TGljZW5zZTEz"
+            },
             "forks": 0,
             "open_issues": 0,
             "watchers": 2,
