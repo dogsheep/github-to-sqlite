@@ -32,6 +32,19 @@ You can point to a different location of `auth.json` using `-a`:
 
     $ github-to-sqlite issues github.db simonw/datasette -a /path/to/auth.json
 
+## Fetching repos belonging to a user or organization
+
+The `repos` command fetches repos belonging to a user or organization.
+
+Without any other arguments, this command will fetch all repos that the currently authenticated user owns, collaborates on or can access via one of their organizations:
+
+    $ github-to-sqlite repos github.db
+
+To fetch repos belonging to a specific user or organization, provide their username as an argument:
+
+    $ github-to-sqlite repos github.db dogsheep # organization
+    $ github-to-sqlite repos github.db simonw # user
+
 ## Fetching repos that have been starred by a user
 
 The `starred` command fetches the repos that have been starred by a user.

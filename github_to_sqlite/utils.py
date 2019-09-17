@@ -135,6 +135,17 @@ def fetch_all_starred(username=None, token=None):
         yield from stars
 
 
+def fetch_all_repos(username=None, token=None):
+    assert username or token, "Must provide username= or token= or both"
+    headers = make_headers(token)
+    if username:
+        url = "https://api.github.com/users/{}/repos".format(username)
+    else:
+        url = "https://api.github.com/user/repos"
+    for repos in paginate(url, headers):
+        yield from repos
+
+
 def fetch_user(username=None, token=None):
     assert username or token, "Must provide username= or token= or both"
     headers = make_headers(token)
