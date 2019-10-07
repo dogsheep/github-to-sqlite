@@ -58,7 +58,7 @@ def save_user(db, user):
     # so fill in 'name' from 'login' so Datasette foreign keys display
     if to_save.get("name") is None:
         to_save["name"] = to_save["login"]
-    return db["users"].upsert(to_save, pk="id").last_pk
+    return db["users"].upsert(to_save, pk="id", alter=True).last_pk
 
 
 def save_milestone(db, milestone):
