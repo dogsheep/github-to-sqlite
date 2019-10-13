@@ -75,6 +75,34 @@ def save_milestone(db, milestone):
     )
 
 
+def save_issue_comment(db, comment):
+    comment = dict(comment)
+    comment["user"] = save_user(db, comment["user"])
+    # We set up a 'issue' foreign key, but only if issue is in the DB
+    comment["issue"] = None
+    issue_url = comment["issue_url"]
+    bits = issue_url.split("/")
+    user_slug, repo_slug, issue_number = bits[-4], bits[-3], bits[-1]
+    # Is the issue in the DB already?
+    issue_rows = list(
+        db["issues"].rows_where(
+            "number = :number and repo = :repo",
+            {"repo": "{}/{}".format(user_slug, repo_slug), "number": issue_number},
+        )
+    )
+    if len(issue_rows) == 1:
+        comment["issue"] = issue_rows[0]["id"]
+    comment.pop("url", None)
+    if "url" in comment.get("reactions", {}):
+        comment["reactions"].pop("url")
+    last_pk = (
+        db["issue_comments"]
+        .upsert(comment, pk="id", foreign_keys=("user", "issue"), alter=True)
+        .last_pk
+    )
+    return last_pk
+
+
 def fetch_repo(repo, token=None):
     headers = make_headers(token)
     owner, slug = repo.split("/")
@@ -116,11 +144,28 @@ def ensure_foreign_keys(db):
             db[expected_key[0]].add_foreign_key(*expected_key[1:])
 
 
-def fetch_all_issues(repo, token=None):
+def fetch_issues(repo, token=None, issue=None):
     headers = make_headers(token)
-    url = "https://api.github.com/repos/{}/issues?state=all&filter=all".format(repo)
-    for issues in paginate(url, headers):
-        yield from issues
+    if issue is not None:
+        url = "https://api.github.com/repos/{}/issues/{}".format(repo, issue)
+        yield from [requests.get(url).json()]
+    else:
+        url = "https://api.github.com/repos/{}/issues?state=all&filter=all".format(repo)
+        for issues in paginate(url, headers):
+            yield from issues
+
+
+def fetch_issue_comments(repo, token=None, issue=None):
+    assert "/" in repo
+    headers = make_headers(token)
+    # Get reactions:
+    headers["Accept"] = "application/vnd.github.squirrel-girl-preview"
+    path = "/repos/{}/issues/comments".format(repo)
+    if issue is not None:
+        path = "/repos/{}/issues/{}/comments".format(repo, issue)
+    url = "https://api.github.com{}".format(path)
+    for comments in paginate(url, headers):
+        yield from comments
 
 
 def fetch_all_starred(username=None, token=None):

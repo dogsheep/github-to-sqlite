@@ -32,6 +32,23 @@ You can point to a different location of `auth.json` using `-a`:
 
     $ github-to-sqlite issues github.db simonw/datasette -a /path/to/auth.json
 
+You can use the `--issue` option to only load just one specific issue:
+
+    $ github-to-sqlite issues github.db simonw/datasette --issue=1
+
+## Retrieving issue comments for a repository
+
+The `issue-comments` command retrieves all of the comments on all of the issues in a repository.
+
+It is recommended you run `issues` first, so that each imported comment can have a foreign key poining to its issue.
+
+    $ github-to-sqlite issues github.db simonw/datasette
+    $ github-to-sqlite issue-comments github.db simonw/datasette
+
+You can use the `--issue` option to only load comments for a specific issue within that repository, for example:
+
+    $ github-to-sqlite issue-comments github.db simonw/datasette --issue=1
+
 ## Fetching repos belonging to a user or organization
 
 The `repos` command fetches repos belonging to a user or organization.
