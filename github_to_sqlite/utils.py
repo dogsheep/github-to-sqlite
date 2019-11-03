@@ -1,3 +1,4 @@
+import pathlib
 import requests
 
 
@@ -103,10 +104,13 @@ def save_issue_comment(db, comment):
     return last_pk
 
 
-def fetch_repo(repo, token=None):
+def fetch_repo(repo, token=None, is_id=False):
     headers = make_headers(token)
-    owner, slug = repo.split("/")
-    url = "https://api.github.com/repos/{}/{}".format(owner, slug)
+    if is_id:
+        url = "https://api.github.com/repositories/{}".format(repo)
+    else:
+        owner, slug = repo.split("/")
+        url = "https://api.github.com/repos/{}/{}".format(owner, slug)
     return requests.get(url, headers=headers).json()
 
 
@@ -121,7 +125,7 @@ def save_repo(db, repo):
     to_save["license"] = save_license(db, to_save["license"])
     repo_id = (
         db["repos"]
-        .upsert(to_save, pk="id", foreign_keys=(("owner", "users", "id"),))
+        .upsert(to_save, pk="id", foreign_keys=(("owner", "users", "id"),), alter=True)
         .last_pk
     )
     return repo_id
@@ -180,6 +184,17 @@ def fetch_all_starred(username=None, token=None):
         yield from stars
 
 
+def fetch_stargazers(identifier, token=None, is_id=False):
+    headers = make_headers(token)
+    headers["Accept"] = "application/vnd.github.v3.star+json"
+    if is_id:
+        url = "https://api.github.com/repositories/{}/stargazers".format(identifier)
+    else:
+        url = "https://api.github.com/repos/{}/stargazers".format(identifier)
+    for stargazers in paginate(url, headers):
+        yield from stargazers
+
+
 def fetch_all_repos(username=None, token=None):
     assert username or token, "Must provide username= or token= or both"
     headers = make_headers(token)
@@ -230,3 +245,34 @@ def save_stars(db, user, stars):
             pk=("user", "repo"),
             foreign_keys=("user", "repo"),
         )
+
+
+def save_stargazers(db, repo_id, stargazers):
+    for stargazer in stargazers:
+        starred_at = stargazer["starred_at"]
+        user_id = save_user(db, stargazer["user"])
+        db["stars"].upsert(
+            {"user": user_id, "repo": repo_id, "starred_at": starred_at},
+            pk=("user", "repo"),
+            foreign_keys=("user", "repo"),
+        )
+
+
+def resolve_identifiers(db, identifiers, attach, sql):
+    if sql:
+        if attach:
+            for filepath in attach:
+                if ":" in filepath:
+                    alias, filepath = filepath.split(":", 1)
+                else:
+                    alias = filepath.split("/")[-1].split(".")[0]
+                attach_sql = """
+                    ATTACH DATABASE '{}' AS [{}];
+                """.format(
+                    str(pathlib.Path(filepath).resolve()), alias
+                )
+                db.conn.execute(attach_sql)
+        sql_identifiers = [r[0] for r in db.conn.execute(sql).fetchall()]
+    else:
+        sql_identifiers = []
+    return list(identifiers) + sql_identifiers

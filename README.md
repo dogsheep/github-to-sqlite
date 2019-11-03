@@ -69,3 +69,19 @@ The `starred` command fetches the repos that have been starred by a user.
     $ github-to-sqlite starred github.db simonw
 
 If you are using an `auth.json` file you can omit the username to retrieve the starred repos for the authenticated user.
+
+## Fetching users that have starred specific repos
+
+The `stargazers` command fetches the users that have starred the specified repos.
+
+    $ github-to-sqlite stargazers github.db simonw/datasette dogsheep/github-to-sqlite
+
+You can specify one or more repository using `owner/repo` syntax. You can also pass numeric GitHub repository IDs using the `--ids` option:
+
+    $ github-to-sqlite stargazers github.db 107914493 207052882 --ids
+
+Instead of passing the repos you wish to fetch stargazers for, you can use a `--sql` query that returns `owner/repo` strings to fetch - or use `--sql` with `--ids` for a query that returns repository IDs.
+
+    $ github-to-sqlite stargazers --sql 'select id from repos' --ids
+
+Users fetched using this command will be inserted into the `users` table. Many-to-many records showing which repository they starred will be added to the `stars` table.

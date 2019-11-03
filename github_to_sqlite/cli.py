@@ -134,6 +134,43 @@ def starred(db_path, username, auth, load):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
     required=True,
 )
+@click.argument("identifiers", type=str, nargs=-1)
+@click.option(
+    "--attach",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False, exists=True),
+    multiple=True,
+    help="Additional database file to attach",
+)
+@click.option("--sql", help="SQL query to fetch identifiers to use")
+@click.option("--ids", is_flag=True, default=False)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option("--sql", type=str)
+def stargazers(db_path, identifiers, attach, sql, ids, auth):
+    "Fetch the users that have starred the specified repositories"
+    db = sqlite_utils.Database(db_path)
+    identifiers = utils.resolve_identifiers(db, identifiers, attach, sql)
+    token = load_token(auth)
+    for identifier in identifiers:
+        repo = utils.fetch_repo(identifier, token, ids)
+        repo_id = utils.save_repo(db, repo)
+        stargazers = utils.fetch_stargazers(identifier, token, ids)
+        utils.save_stargazers(db, repo_id, stargazers)
+    utils.ensure_repo_fts(db)
+    utils.ensure_foreign_keys(db)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
 @click.argument("username", type=str, required=False)
 @click.option(
     "-a",
