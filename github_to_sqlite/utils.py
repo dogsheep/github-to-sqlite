@@ -121,7 +121,7 @@ def save_repo(db, repo):
     to_save["license"] = save_license(db, to_save["license"])
     repo_id = (
         db["repos"]
-        .upsert(to_save, pk="id", foreign_keys=(("owner", "users", "id"),))
+        .upsert(to_save, pk="id", foreign_keys=(("owner", "users", "id"),), alter=True)
         .last_pk
     )
     return repo_id
@@ -136,6 +136,11 @@ def save_license(db, license):
 def ensure_repo_fts(db):
     if "repos_fts" not in db.table_names():
         db["repos"].enable_fts(["name", "description"], create_triggers=True)
+
+
+def ensure_releases_fts(db):
+    if "releases_fts" not in db.table_names():
+        db["releases"].enable_fts(["name", "body"], create_triggers=True)
 
 
 def ensure_foreign_keys(db):
@@ -166,6 +171,13 @@ def fetch_issue_comments(repo, token=None, issue=None):
     url = "https://api.github.com{}".format(path)
     for comments in paginate(url, headers):
         yield from comments
+
+
+def fetch_releases(repo, token=None, issue=None):
+    headers = make_headers(token)
+    url = "https://api.github.com/repos/{}/releases".format(repo)
+    for releases in paginate(url, headers):
+        yield from releases
 
 
 def fetch_all_starred(username=None, token=None):
@@ -230,3 +242,19 @@ def save_stars(db, user, stars):
             pk=("user", "repo"),
             foreign_keys=("user", "repo"),
         )
+
+
+def save_releases(db, releases, repo_id=None):
+    foreign_keys = [("author", "users", "id")]
+    if repo_id:
+        foreign_keys.append(("repo", "repos", "id"))
+    for original in releases:
+        # Ignore all of the _url fields except html_url
+        issue = {
+            key: value
+            for key, value in original.items()
+            if key == "html_url" or not key.endswith("url")
+        }
+        issue["repo"] = repo_id
+        issue["author"] = save_user(db, issue["author"])
+        db["releases"].upsert(issue, pk="id", foreign_keys=foreign_keys, alter=True)

@@ -2,6 +2,7 @@ import click
 import pathlib
 import os
 import sqlite_utils
+import time
 import json
 from github_to_sqlite import utils
 
@@ -162,6 +163,33 @@ def repos(db_path, username, auth, load):
         utils.save_repo(db, repo)
     utils.ensure_repo_fts(db)
     utils.ensure_foreign_keys(db)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("repos", type=str, nargs=-1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def releases(db_path, repos, auth):
+    "Save releases for the specified repos"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    for repo in repos:
+        repo_full = utils.fetch_repo(repo, token)
+        utils.save_repo(db, repo_full)
+        releases = utils.fetch_releases(repo, token)
+        utils.save_releases(db, releases, repo_full["id"])
+        time.sleep(1)
+    utils.ensure_releases_fts(db)
 
 
 def load_token(auth):
