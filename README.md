@@ -62,6 +62,10 @@ To fetch repos belonging to a specific user or organization, provide their usern
     $ github-to-sqlite repos github.db dogsheep # organization
     $ github-to-sqlite repos github.db simonw # user
 
+You can pass more than one username to fetch for multiple users or organizations at once:
+
+    $ github-to-sqlite repos github.db simonw dogsheep
+
 ## Fetching repos that have been starred by a user
 
 The `starred` command fetches the repos that have been starred by a user.
