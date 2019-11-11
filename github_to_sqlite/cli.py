@@ -45,7 +45,7 @@ def auth(auth):
 @click.option(
     "-a",
     "--auth",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
     default="auth.json",
     help="Path to auth.json token file",
 )
@@ -78,7 +78,7 @@ def issues(db_path, repo, issue, auth, load):
 @click.option(
     "-a",
     "--auth",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
     default="auth.json",
     help="Path to auth.json token file",
 )
@@ -100,7 +100,7 @@ def issue_comments(db_path, repo, issue, auth):
 @click.option(
     "-a",
     "--auth",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
     default="auth.json",
     help="Path to auth.json token file",
 )
@@ -139,7 +139,7 @@ def starred(db_path, username, auth, load):
 @click.option(
     "-a",
     "--auth",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
     default="auth.json",
     help="Path to auth.json token file",
 )
@@ -175,7 +175,7 @@ def repos(db_path, usernames, auth, load):
 @click.option(
     "-a",
     "--auth",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
     default="auth.json",
     help="Path to auth.json token file",
 )
