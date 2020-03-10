@@ -192,6 +192,32 @@ def releases(db_path, repos, auth):
     utils.ensure_releases_fts(db)
 
 
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("repos", type=str, nargs=-1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def commits(db_path, repos, auth):
+    "Save commits for the specified repos"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    for repo in repos:
+        repo_full = utils.fetch_repo(repo, token)
+        utils.save_repo(db, repo_full)
+        commits = utils.fetch_commits(repo, token)
+        utils.save_commits(db, commits, repo_full["id"])
+        time.sleep(1)
+
+
 def load_token(auth):
     try:
         token = json.load(open(auth))["github_personal_token"]

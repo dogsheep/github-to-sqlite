@@ -1,0 +1,160 @@
+[
+  {
+    "sha": "9eb737090fafd0e5a7e314be48402374d99e9828",
+    "node_id": "MDY6Q29tbWl0MjA3MDUyODgyOjllYjczNzA5MGZhZmQwZTVhN2UzMTRiZTQ4NDAyMzc0ZDk5ZTk4Mjg=",
+    "commit": {
+      "author": {
+        "name": "Simon Willison",
+        "email": "swillison@gmail.com",
+        "date": "2019-11-11T05:31:46Z"
+      },
+      "committer": {
+        "name": "Simon Willison",
+        "email": "swillison@gmail.com",
+        "date": "2019-11-11T05:31:46Z"
+      },
+      "message": "Release 0.6",
+      "tree": {
+        "sha": "8a779047f6b0720efce23289f4e54fe59e36fe89",
+        "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/git/trees/8a779047f6b0720efce23289f4e54fe59e36fe89"
+      },
+      "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/git/commits/9eb737090fafd0e5a7e314be48402374d99e9828",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null
+      }
+    },
+    "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/commits/9eb737090fafd0e5a7e314be48402374d99e9828",
+    "html_url": "https://github.com/dogsheep/github-to-sqlite/commit/9eb737090fafd0e5a7e314be48402374d99e9828",
+    "comments_url": "https://api.github.com/repos/dogsheep/github-to-sqlite/commits/9eb737090fafd0e5a7e314be48402374d99e9828/comments",
+    "author": {
+      "login": "simonw",
+      "id": 9599,
+      "node_id": "MDQ6VXNlcjk1OTk=",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/9599?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/simonw",
+      "html_url": "https://github.com/simonw",
+      "followers_url": "https://api.github.com/users/simonw/followers",
+      "following_url": "https://api.github.com/users/simonw/following{/other_user}",
+      "gists_url": "https://api.github.com/users/simonw/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/simonw/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/simonw/subscriptions",
+      "organizations_url": "https://api.github.com/users/simonw/orgs",
+      "repos_url": "https://api.github.com/users/simonw/repos",
+      "events_url": "https://api.github.com/users/simonw/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/simonw/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "simonw",
+      "id": 9599,
+      "node_id": "MDQ6VXNlcjk1OTk=",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/9599?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/simonw",
+      "html_url": "https://github.com/simonw",
+      "followers_url": "https://api.github.com/users/simonw/followers",
+      "following_url": "https://api.github.com/users/simonw/following{/other_user}",
+      "gists_url": "https://api.github.com/users/simonw/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/simonw/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/simonw/subscriptions",
+      "organizations_url": "https://api.github.com/users/simonw/orgs",
+      "repos_url": "https://api.github.com/users/simonw/repos",
+      "events_url": "https://api.github.com/users/simonw/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/simonw/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "1e6995a362e5b8f23331aafb84e631392eb81492",
+        "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/commits/1e6995a362e5b8f23331aafb84e631392eb81492",
+        "html_url": "https://github.com/dogsheep/github-to-sqlite/commit/1e6995a362e5b8f23331aafb84e631392eb81492"
+      }
+    ]
+  },
+  {
+    "sha": "1e6995a362e5b8f23331aafb84e631392eb81492",
+    "node_id": "MDY6Q29tbWl0MjA3MDUyODgyOjFlNjk5NWEzNjJlNWI4ZjIzMzMxYWFmYjg0ZTYzMTM5MmViODE0OTI=",
+    "commit": {
+      "author": {
+        "name": "Simon Willison",
+        "email": "swillison@gmail.com",
+        "date": "2019-11-11T05:30:41Z"
+      },
+      "committer": {
+        "name": "Simon Willison",
+        "email": "swillison@gmail.com",
+        "date": "2019-11-11T05:30:41Z"
+      },
+      "message": "--auth is now optional, closes #9",
+      "tree": {
+        "sha": "bb6bf01d0e791c9ee4207b784e881543dcdc3f3c",
+        "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/git/trees/bb6bf01d0e791c9ee4207b784e881543dcdc3f3c"
+      },
+      "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/git/commits/1e6995a362e5b8f23331aafb84e631392eb81492",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null
+      }
+    },
+    "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/commits/1e6995a362e5b8f23331aafb84e631392eb81492",
+    "html_url": "https://github.com/dogsheep/github-to-sqlite/commit/1e6995a362e5b8f23331aafb84e631392eb81492",
+    "comments_url": "https://api.github.com/repos/dogsheep/github-to-sqlite/commits/1e6995a362e5b8f23331aafb84e631392eb81492/comments",
+    "author": {
+      "login": "simonw",
+      "id": 9599,
+      "node_id": "MDQ6VXNlcjk1OTk=",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/9599?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/simonw",
+      "html_url": "https://github.com/simonw",
+      "followers_url": "https://api.github.com/users/simonw/followers",
+      "following_url": "https://api.github.com/users/simonw/following{/other_user}",
+      "gists_url": "https://api.github.com/users/simonw/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/simonw/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/simonw/subscriptions",
+      "organizations_url": "https://api.github.com/users/simonw/orgs",
+      "repos_url": "https://api.github.com/users/simonw/repos",
+      "events_url": "https://api.github.com/users/simonw/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/simonw/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "simonw",
+      "id": 9599,
+      "node_id": "MDQ6VXNlcjk1OTk=",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/9599?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/simonw",
+      "html_url": "https://github.com/simonw",
+      "followers_url": "https://api.github.com/users/simonw/followers",
+      "following_url": "https://api.github.com/users/simonw/following{/other_user}",
+      "gists_url": "https://api.github.com/users/simonw/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/simonw/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/simonw/subscriptions",
+      "organizations_url": "https://api.github.com/users/simonw/orgs",
+      "repos_url": "https://api.github.com/users/simonw/repos",
+      "events_url": "https://api.github.com/users/simonw/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/simonw/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "0a2dddccd7eb6cedae128c08931f14f12d5bce70",
+        "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/commits/0a2dddccd7eb6cedae128c08931f14f12d5bce70",
+        "html_url": "https://github.com/dogsheep/github-to-sqlite/commit/0a2dddccd7eb6cedae128c08931f14f12d5bce70"
+      }
+    ]
+  }
+]

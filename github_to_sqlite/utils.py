@@ -180,6 +180,13 @@ def fetch_releases(repo, token=None, issue=None):
         yield from releases
 
 
+def fetch_commits(repo, token=None, issue=None):
+    headers = make_headers(token)
+    url = "https://api.github.com/repos/{}/commits".format(repo)
+    for commits in paginate(url, headers):
+        yield from commits
+
+
 def fetch_all_starred(username=None, token=None):
     assert username or token, "Must provide username= or token= or both"
     headers = make_headers(token)
@@ -260,3 +267,22 @@ def save_releases(db, releases, repo_id=None):
         issue["repo"] = repo_id
         issue["author"] = save_user(db, issue["author"])
         db["releases"].upsert(issue, pk="id", foreign_keys=foreign_keys, alter=True)
+
+
+def save_commits(db, commits, repo_id=None):
+    foreign_keys = [("author", "users", "id"), ("committer", "users", "id")]
+    if repo_id:
+        foreign_keys.append(("repo", "repos", "id"))
+    for commit in commits:
+        commit_to_insert = {
+            "sha": commit["sha"],
+            "message": commit["commit"]["message"],
+            "author_date": commit["commit"]["author"]["date"],
+            "committer_date": commit["commit"]["committer"]["date"],
+        }
+        commit_to_insert["repo"] = repo_id
+        commit_to_insert["author"] = save_user(db, commit["author"])
+        commit_to_insert["committer"] = save_user(db, commit["committer"])
+        db["commits"].upsert(
+            commit_to_insert, pk="sha", foreign_keys=foreign_keys, alter=True
+        )
