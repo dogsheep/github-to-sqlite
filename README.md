@@ -20,7 +20,7 @@ Run this command and paste in your new token:
 
 This will create a file called `auth.json` in your current directory containing the required value. To save the file at a different path or filename, use the `--auth=myauth.json` option.
 
-## Retrieving issues for a repository
+## Fetching issues for a repository
 
 The `issues` command retrieves all of the issues belonging to a specified repository.
 
@@ -36,7 +36,7 @@ You can use the `--issue` option to only load just one specific issue:
 
     $ github-to-sqlite issues github.db simonw/datasette --issue=1
 
-## Retrieving issue comments for a repository
+## Fetching issue comments for a repository
 
 The `issue-comments` command retrieves all of the comments on all of the issues in a repository.
 
@@ -48,6 +48,16 @@ It is recommended you run `issues` first, so that each imported comment can have
 You can use the `--issue` option to only load comments for a specific issue within that repository, for example:
 
     $ github-to-sqlite issue-comments github.db simonw/datasette --issue=1
+
+## Fetching commits for a repository
+
+The `commits` command retrieves details of all of the commits for one or more repositories. It currently fetches the sha, commit message and author and committer details - it does no retrieve the full commit body.
+
+    $ github-to-sqlite commits github.db simonw/datasette simonw/sqlite-utils
+
+The command accepts one or more repositories.
+
+By default it will stop as soon as it sees a commit that has previously been retrieved. You can force it to retrieve all commits (including those that have been previously inserted) using `--all`.
 
 ## Fetching repos belonging to a user or organization
 
