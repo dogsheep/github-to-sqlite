@@ -200,20 +200,38 @@ def releases(db_path, repos, auth):
 )
 @click.argument("repos", type=str, nargs=-1)
 @click.option(
+    "--all",
+    is_flag=True,
+    default=False,
+    help="Load all commits (not just those that have not yet been saved)",
+)
+@click.option(
     "-a",
     "--auth",
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
     default="auth.json",
     help="Path to auth.json token file",
 )
-def commits(db_path, repos, auth):
+def commits(db_path, repos, all, auth):
     "Save commits for the specified repos"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
+
+    def stop_when(commit):
+        try:
+            db["commits"].get(commit["sha"])
+            return True
+        except sqlite_utils.db.NotFoundError:
+            return False
+
+    if all:
+        stop_when = None
+
     for repo in repos:
         repo_full = utils.fetch_repo(repo, token)
         utils.save_repo(db, repo_full)
-        commits = utils.fetch_commits(repo, token)
+
+        commits = utils.fetch_commits(repo, token, stop_when)
         utils.save_commits(db, commits, repo_full["id"])
         time.sleep(1)
 

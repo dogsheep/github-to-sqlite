@@ -180,11 +180,17 @@ def fetch_releases(repo, token=None, issue=None):
         yield from releases
 
 
-def fetch_commits(repo, token=None, issue=None):
+def fetch_commits(repo, token=None, stop_when=None):
+    if stop_when is None:
+        stop_when = lambda commit: False
     headers = make_headers(token)
     url = "https://api.github.com/repos/{}/commits".format(repo)
     for commits in paginate(url, headers):
-        yield from commits
+        for commit in commits:
+            if stop_when(commit):
+                return
+            else:
+                yield commit
 
 
 def fetch_all_starred(username=None, token=None):
