@@ -31,7 +31,7 @@ jobs:
         pip install -e .
     - name: Create auth.json
       run: |
-        echo '{}' | jq --arg token $GITHUB_ACCESS_TOKEN '. + { text: $token }' > auth.json
+        echo "{\"github_personal_token\": \"$GITHUB_ACCESS_TOKEN\"}" > auth.json
     - name: Build the database
       run: |-
         github-to-sqlite repos github.db simonw dogsheep
