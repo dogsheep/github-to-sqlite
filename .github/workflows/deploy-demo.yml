@@ -36,22 +36,22 @@ jobs:
         pwd
     - name: Fetch the repos
       run: |-
-        github-to-sqlite repos github.db dogsheep -a auth.json
+        github-to-sqlite repos github.db dogsheep
         sqlite-utils tables --counts github.db
     - name: Fetch releases, commits, issues
       run: |-
         sqlite-utils github.db "select full_name from repos" \
           --csv --no-headers | while read repo;
             do github-to-sqlite releases \
-                    github.db $(echo $repo | tr -d '\r') -a auth.json;
+                    github.db $(echo $repo | tr -d '\r');
                 sleep 2;
             done;
             do github-to-sqlite commits \
-                    github.db $(echo $repo | tr -d '\r') -a auth.json;
+                    github.db $(echo $repo | tr -d '\r');
                 sleep 2;
             done;
             do github-to-sqlite issues \
-                    github.db $(echo $repo | tr -d '\r') -a auth.json;
+                    github.db $(echo $repo | tr -d '\r');
                 sleep 2;
             done;
         sqlite-utils tables --counts github.db
