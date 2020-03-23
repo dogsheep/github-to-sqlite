@@ -25,7 +25,7 @@ def db(releases, repo):
 
 
 def test_tables(db):
-    assert {"users", "licenses", "repos", "releases"} == set(db.table_names())
+    assert {"users", "licenses", "repos", "releases", "assets"} == set(db.table_names())
     assert {
         ForeignKey(
             table="releases", column="author", other_table="users", other_column="id"
@@ -34,6 +34,14 @@ def test_tables(db):
             table="releases", column="repo", other_table="repos", other_column="id"
         ),
     } == set(db["releases"].foreign_keys)
+    assert {
+        ForeignKey(
+            table="assets", column="uploader", other_table="users", other_column="id"
+        ),
+        ForeignKey(
+            table="assets", column="release", other_table="releases", other_column="id"
+        ),
+    } == set(db["assets"].foreign_keys)
 
 
 def test_releases(db):
@@ -51,7 +59,6 @@ def test_releases(db):
             "prerelease": 0,
             "created_at": "2019-09-14T19:19:33Z",
             "published_at": "2019-09-14T19:42:08Z",
-            "assets": "[]",
             "body": "* Fix bug in authentication handling code",
             "repo": 207052882,
         },
@@ -67,7 +74,6 @@ def test_releases(db):
             "prerelease": 0,
             "created_at": "2019-09-14T21:31:17Z",
             "published_at": "2019-09-14T21:32:34Z",
-            "assets": "[]",
             "body": "* Added the `github-to-sqlite starred` command for retrieving starred repos, #1 ",
             "repo": 207052882,
         },
@@ -83,7 +89,6 @@ def test_releases(db):
             "prerelease": 0,
             "created_at": "2019-09-14T21:49:27Z",
             "published_at": "2019-09-14T21:50:01Z",
-            "assets": "[]",
             "body": "* `license` is now extracted from the `repos` table into a separate `licenses` table with a foreign key, #2\r\n\r\n",
             "repo": 207052882,
         },
@@ -99,7 +104,6 @@ def test_releases(db):
             "prerelease": 0,
             "created_at": "2019-09-17T00:18:37Z",
             "published_at": "2019-09-17T00:19:42Z",
-            "assets": "[]",
             "body": "* Added `github-to-sqlite repos` command, #3 ",
             "repo": 207052882,
         },
@@ -115,8 +119,26 @@ def test_releases(db):
             "prerelease": 0,
             "created_at": "2019-10-13T05:28:24Z",
             "published_at": "2019-10-13T05:30:05Z",
-            "assets": "[]",
             "body": "* New command: `github-to-sqlite issue-comments` for importing comments on issues - #7\r\n* `github-to-sqlite issues` now accepts optional `--issue=1` argument\r\n* Fixed bug inserting users into already-created table with wrong columns - #6",
             "repo": 207052882,
         },
     ] == release_rows
+    asset_rows = list(db["assets"].rows)
+    assert [
+        {
+            "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/releases/assets/11811946",
+            "id": 11811946,
+            "node_id": "MDEyOlJlbGVhc2VBc3NldDExODExOTQ2",
+            "name": "checksums.txt",
+            "label": "",
+            "uploader": 9599,
+            "content_type": "text/plain; charset=utf-8",
+            "state": "uploaded",
+            "size": 600,
+            "download_count": 2,
+            "created_at": "2019-03-30T16:56:44Z",
+            "updated_at": "2019-03-30T16:56:44Z",
+            "browser_download_url": "https://github.com/dogsheep/github-to-sqlite/releases/download/v0.1.0/checksums.txt",
+            "release": 19993251,
+        }
+    ] == asset_rows

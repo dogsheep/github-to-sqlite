@@ -268,14 +268,30 @@ def save_releases(db, releases, repo_id=None):
         foreign_keys.append(("repo", "repos", "id"))
     for original in releases:
         # Ignore all of the _url fields except html_url
-        issue = {
+        release = {
             key: value
             for key, value in original.items()
             if key == "html_url" or not key.endswith("url")
         }
-        issue["repo"] = repo_id
-        issue["author"] = save_user(db, issue["author"])
-        db["releases"].upsert(issue, pk="id", foreign_keys=foreign_keys, alter=True)
+        assets = release.pop("assets") or []
+        release["repo"] = repo_id
+        release["author"] = save_user(db, release["author"])
+        release_id = (
+            db["releases"]
+            .upsert(release, pk="id", foreign_keys=foreign_keys, alter=True)
+            .last_pk
+        )
+        # Handle assets
+        for asset in assets:
+            asset["uploader"] = save_user(db, asset["uploader"])
+            asset["release"] = release_id
+
+        db["assets"].upsert_all(
+            assets,
+            pk="id",
+            foreign_keys=[("uploader", "users", "id"), ("release", "releases", "id"),],
+            alter=True,
+        )
 
 
 def save_commits(db, commits, repo_id=None):
