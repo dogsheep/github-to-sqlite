@@ -45,7 +45,7 @@ def save_issues(db, issues):
         # Add a type field to distinguish issues from pulls
         issue["type"] = "pull" if issue.get("pull_request") else "issue"
         # Insert record
-        table = db["issues"].upsert(
+        table = db["issues"].insert(
             issue,
             pk="id",
             foreign_keys=[
@@ -54,6 +54,7 @@ def save_issues(db, issues):
                 ("milestone", "milestones", "id"),
             ],
             alter=True,
+            replace=True,
         )
         # m2m for labels
         for label in labels:
@@ -71,7 +72,7 @@ def save_user(db, user):
     # so fill in 'name' from 'login' so Datasette foreign keys display
     if to_save.get("name") is None:
         to_save["name"] = to_save["login"]
-    return db["users"].upsert(to_save, pk="id", alter=True).last_pk
+    return db["users"].insert(to_save, pk="id", alter=True, replace=True).last_pk
 
 
 def save_milestone(db, milestone):
@@ -81,8 +82,12 @@ def save_milestone(db, milestone):
     milestone.pop("url", None)
     return (
         db["milestones"]
-        .upsert(
-            milestone, pk="id", foreign_keys=[("creator", "users", "id")], alter=True
+        .insert(
+            milestone,
+            pk="id",
+            foreign_keys=[("creator", "users", "id")],
+            alter=True,
+            replace=True,
         )
         .last_pk
     )
@@ -110,7 +115,9 @@ def save_issue_comment(db, comment):
         comment["reactions"].pop("url")
     last_pk = (
         db["issue_comments"]
-        .upsert(comment, pk="id", foreign_keys=("user", "issue"), alter=True)
+        .insert(
+            comment, pk="id", foreign_keys=("user", "issue"), alter=True, replace=True
+        )
         .last_pk
     )
     return last_pk
@@ -134,7 +141,13 @@ def save_repo(db, repo):
     to_save["license"] = save_license(db, to_save["license"])
     repo_id = (
         db["repos"]
-        .upsert(to_save, pk="id", foreign_keys=(("owner", "users", "id"),), alter=True)
+        .insert(
+            to_save,
+            pk="id",
+            foreign_keys=(("owner", "users", "id"),),
+            alter=True,
+            replace=True,
+        )
         .last_pk
     )
     return repo_id
@@ -143,7 +156,7 @@ def save_repo(db, repo):
 def save_license(db, license):
     if license is None:
         return None
-    return db["licenses"].upsert(license, pk="key").last_pk
+    return db["licenses"].insert(license, pk="key", replace=True).last_pk
 
 
 def ensure_foreign_keys(db):
@@ -255,10 +268,11 @@ def save_stars(db, user, stars):
         starred_at = star["starred_at"]
         repo = star["repo"]
         repo_id = save_repo(db, repo)
-        db["stars"].upsert(
+        db["stars"].insert(
             {"user": user_id, "repo": repo_id, "starred_at": starred_at},
             pk=("user", "repo"),
             foreign_keys=("user", "repo"),
+            replace=True,
         )
 
 
@@ -278,7 +292,9 @@ def save_releases(db, releases, repo_id=None):
         release["author"] = save_user(db, release["author"])
         release_id = (
             db["releases"]
-            .upsert(release, pk="id", foreign_keys=foreign_keys, alter=True)
+            .insert(
+                release, pk="id", foreign_keys=foreign_keys, alter=True, replace=True
+            )
             .last_pk
         )
         # Handle assets
@@ -308,8 +324,12 @@ def save_commits(db, commits, repo_id=None):
         commit_to_insert["repo"] = repo_id
         commit_to_insert["author"] = save_user(db, commit["author"])
         commit_to_insert["committer"] = save_user(db, commit["committer"])
-        db["commits"].upsert(
-            commit_to_insert, pk="sha", foreign_keys=foreign_keys, alter=True
+        db["commits"].insert(
+            commit_to_insert,
+            pk="sha",
+            foreign_keys=foreign_keys,
+            alter=True,
+            replace=True,
         )
 
 
