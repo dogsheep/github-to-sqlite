@@ -32,6 +32,8 @@ jobs:
     - name: Create auth.json
       run: |
         echo "{\"github_personal_token\": \"$GITHUB_ACCESS_TOKEN\"}" > auth.json
+        ls -lah
+        pwd
     - name: Fetch the repos
       run: |-
         github-to-sqlite repos github.db simonw dogsheep
