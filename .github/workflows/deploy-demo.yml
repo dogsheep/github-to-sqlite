@@ -18,6 +18,8 @@ jobs:
       uses: actions/setup-python@v1
       with:
         python-version: 3.8
+    - name: Install sqlite3
+      run: sudo apt-get install sqlite3
     - uses: actions/cache@v1
       name: Configure pip caching
       with:
