@@ -131,6 +131,7 @@ def fetch_repo(repo, token=None):
 
 
 def save_repo(db, repo):
+    assert isinstance(repo, dict), "Repo should be a dict: {}".format(repr(repo))
     # Remove all url fields except html_url
     to_save = {
         key: value
