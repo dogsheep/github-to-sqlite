@@ -30,11 +30,12 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .
     - name: Create auth.json
+      env:
+        GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
       run: |
         echo "{\"github_personal_token\": \"$GITHUB_ACCESS_TOKEN\"}" > auth.json
     - name: Fetch the repos
       run: |-
-        cat auth.json
         github-to-sqlite repos github.db dogsheep
         sqlite-utils tables --counts github.db
     - name: Fetch releases, commits, issues
