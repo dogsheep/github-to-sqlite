@@ -21,21 +21,31 @@ def db(starred, user):
     db = sqlite_utils.Database(memory=True)
     utils.save_stars(db, user, starred)
     utils.ensure_foreign_keys(db)
-    utils.ensure_repo_fts(db)
+    utils.ensure_fts(db)
     return db
 
 
 def test_tables(db):
     assert {
-        "repos",
-        "repos_fts",
-        "repos_fts_config",
-        "repos_fts_idx",
-        "stars",
-        "repos_fts_docsize",
-        "repos_fts_data",
         "licenses",
+        "licenses_fts_docsize",
+        "repos_fts_config",
+        "users_fts_idx",
+        "repos_fts_data",
+        "licenses_fts_data",
+        "stars",
         "users",
+        "repos_fts_docsize",
+        "repos_fts",
+        "repos_fts_idx",
+        "repos",
+        "licenses_fts",
+        "users_fts_docsize",
+        "users_fts",
+        "licenses_fts_config",
+        "users_fts_config",
+        "licenses_fts_idx",
+        "users_fts_data",
     } == set(db.table_names())
 
 

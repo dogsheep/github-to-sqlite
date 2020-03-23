@@ -65,6 +65,7 @@ def issues(db_path, repo, issue, auth, load):
 
     issues = list(issues)
     utils.save_issues(db, issues)
+    utils.ensure_fts(db)
 
 
 @cli.command(name="issue-comments")
@@ -88,6 +89,7 @@ def issue_comments(db_path, repo, issue, auth):
     token = load_token(auth)
     for comment in utils.fetch_issue_comments(repo, token, issue):
         utils.save_issue_comment(db, comment)
+    utils.ensure_fts(db)
 
 
 @cli.command()
@@ -125,7 +127,7 @@ def starred(db_path, username, auth, load):
         user = utils.fetch_user(token=token)
 
     utils.save_stars(db, user, stars)
-    utils.ensure_repo_fts(db)
+    utils.ensure_fts(db)
     utils.ensure_foreign_keys(db)
 
 
@@ -161,7 +163,7 @@ def repos(db_path, usernames, auth, load):
         for username in usernames:
             for repo in utils.fetch_all_repos(username, token):
                 utils.save_repo(db, repo)
-    utils.ensure_repo_fts(db)
+    utils.ensure_fts(db)
     utils.ensure_foreign_keys(db)
 
 
@@ -189,7 +191,7 @@ def releases(db_path, repos, auth):
         releases = utils.fetch_releases(repo, token)
         utils.save_releases(db, releases, repo_full["id"])
         time.sleep(1)
-    utils.ensure_releases_fts(db)
+    utils.ensure_fts(db)
 
 
 @cli.command()
@@ -234,6 +236,8 @@ def commits(db_path, repos, all, auth):
         commits = utils.fetch_commits(repo, token, stop_when)
         utils.save_commits(db, commits, repo_full["id"])
         time.sleep(1)
+
+    utils.ensure_fts(db)
 
 
 def load_token(auth):

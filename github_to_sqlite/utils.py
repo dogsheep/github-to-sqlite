@@ -1,5 +1,18 @@
 import requests
 
+FTS_CONFIG = {
+    # table: columns
+    "commits": ["message"],
+    "issue_comments": ["body"],
+    "issues": ["title", "body"],
+    "labels": ["name", "description"],
+    "licenses": ["name"],
+    "milestones": ["title", "description"],
+    "releases": ["name", "body"],
+    "repos": ["name", "description"],
+    "users": ["login", "name"],
+}
+
 
 def save_issues(db, issues):
     if "milestones" not in db.table_names():
@@ -131,16 +144,6 @@ def save_license(db, license):
     if license is None:
         return None
     return db["licenses"].upsert(license, pk="key").last_pk
-
-
-def ensure_repo_fts(db):
-    if "repos_fts" not in db.table_names():
-        db["repos"].enable_fts(["name", "description"], create_triggers=True)
-
-
-def ensure_releases_fts(db):
-    if "releases_fts" not in db.table_names():
-        db["releases"].enable_fts(["name", "body"], create_triggers=True)
 
 
 def ensure_foreign_keys(db):
@@ -292,3 +295,13 @@ def save_commits(db, commits, repo_id=None):
         db["commits"].upsert(
             commit_to_insert, pk="sha", foreign_keys=foreign_keys, alter=True
         )
+
+
+def ensure_fts(db):
+    existing_tables = set(db.table_names())
+    for table, columns in FTS_CONFIG.items():
+        if "{}_fts".format(table) in existing_tables:
+            continue
+        if table not in existing_tables:
+            continue
+        db[table].enable_fts(columns, create_triggers=True)
