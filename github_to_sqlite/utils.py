@@ -311,26 +311,65 @@ def save_releases(db, releases, repo_id=None):
 
 
 def save_commits(db, commits, repo_id=None):
-    foreign_keys = [("author", "users", "id"), ("committer", "users", "id")]
-    if repo_id:
-        foreign_keys.append(("repo", "repos", "id"))
+    foreign_keys = [
+        ("author", "users", "id"),
+        ("committer", "users", "id"),
+        ("raw_author", "raw_authors", "id"),
+        ("raw_committer", "raw_authors", "id"),
+        ("repo", "repos", "id"),
+    ]
+
+    if not db["raw_authors"].exists():
+        db["raw_authors"].create({"id": str, "name": str, "email": str,}, pk="id")
+
+    if not db["commits"].exists():
+        # We explicitly create the table because otherwise we may create it
+        # with incorrect column types, since author/committer can be null
+        db["commits"].create(
+            {
+                "sha": str,
+                "message": str,
+                "author_date": str,
+                "committer_date": str,
+                "raw_author": str,
+                "raw_committer": str,
+                "repo": int,
+                "author": int,
+                "committer": int,
+            },
+            pk="sha",
+            foreign_keys=foreign_keys,
+        )
+
     for commit in commits:
         commit_to_insert = {
             "sha": commit["sha"],
             "message": commit["commit"]["message"],
             "author_date": commit["commit"]["author"]["date"],
             "committer_date": commit["commit"]["committer"]["date"],
+            "raw_author": save_commit_author(db, commit["commit"]["author"]),
+            "raw_committer": save_commit_author(db, commit["commit"]["committer"]),
         }
         commit_to_insert["repo"] = repo_id
-        commit_to_insert["author"] = save_user(db, commit["author"])
-        commit_to_insert["committer"] = save_user(db, commit["committer"])
-        db["commits"].insert(
-            commit_to_insert,
-            pk="sha",
-            foreign_keys=foreign_keys,
-            alter=True,
-            replace=True,
+        commit_to_insert["author"] = (
+            save_user(db, commit["author"]) if commit["author"] else None
         )
+        commit_to_insert["committer"] = (
+            save_user(db, commit["committer"]) if commit["committer"] else None
+        )
+        db["commits"].insert(
+            commit_to_insert, alter=True, replace=True,
+        )
+
+
+def save_commit_author(db, raw_author):
+    name = raw_author.get("name")
+    email = raw_author.get("email")
+    return (
+        db["raw_authors"]
+        .insert({"name": name, "email": email,}, hash_id="id", replace=True)
+        .last_pk
+    )
 
 
 def ensure_fts(db):
