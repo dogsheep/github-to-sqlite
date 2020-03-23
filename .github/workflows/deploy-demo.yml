@@ -32,9 +32,12 @@ jobs:
     - name: Create auth.json
       run: |
         echo "{\"github_personal_token\": \"$GITHUB_ACCESS_TOKEN\"}" > auth.json
-    - name: Build the database
+    - name: Fetch the repos
       run: |-
         github-to-sqlite repos github.db simonw dogsheep
+        sqlite-utils tables --counts github.db
+    - name: Fetch releases, commits, issues
+      run: |-
         # Just run against repos labelled with 'datasette-io'
         sqlite-utils github.db "
         select full_name from repos where rowid in (
@@ -53,6 +56,7 @@ jobs:
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
             done;
+        sqlite-utils tables --counts github.db
     - name: Set up Cloud Run
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
