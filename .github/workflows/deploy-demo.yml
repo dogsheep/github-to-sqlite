@@ -42,15 +42,13 @@ jobs:
       run: |-
         sqlite-utils github.db "select full_name from repos" \
           --csv --no-headers | while read repo;
-            do github-to-sqlite releases \
+            do  github-to-sqlite releases \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
-            done;
-            do github-to-sqlite commits \
+                github-to-sqlite commits \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
-            done;
-            do github-to-sqlite issues \
+                github-to-sqlite issues \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
             done;
