@@ -70,6 +70,7 @@ jobs:
         gcloud config set project datasette-222320
         datasette publish cloudrun github.db \
             --service github-to-sqlite \
-            --title "gitub-to-sqlite demo" \
+            --title "github-to-sqlite demo" \
             --about "github-to-sqlite" \
-            --about_url "https://github.com/dogsheep/github-to-sqlite"
+            --about_url "https://github.com/dogsheep/github-to-sqlite" \
+            --install=datasette-search-all
