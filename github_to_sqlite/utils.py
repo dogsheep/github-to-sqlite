@@ -252,9 +252,7 @@ def paginate(url, headers=None):
             url = response.links.get("next").get("url")
         except AttributeError:
             url = None
-        data = response.json()
-        print(url, repr(data))
-        yield data
+        yield response.json()
 
 
 def make_headers(token=None):
