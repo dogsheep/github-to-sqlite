@@ -1,5 +1,10 @@
 import requests
 
+
+class GitHubError(Exception):
+    pass
+
+
 FTS_CONFIG = {
     # table: columns
     "commits": ["message"],
@@ -252,7 +257,10 @@ def paginate(url, headers=None):
             url = response.links.get("next").get("url")
         except AttributeError:
             url = None
-        yield response.json()
+        data = response.json()
+        if isinstance(data, dict) and data.get("message"):
+            raise GitHubError(repr(data))
+        yield data
 
 
 def make_headers(token=None):
