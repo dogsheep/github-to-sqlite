@@ -36,16 +36,12 @@ jobs:
         pwd
     - name: Fetch the repos
       run: |-
-        github-to-sqlite repos github.db simonw dogsheep -a auth.json
+        github-to-sqlite repos github.db dogsheep -a auth.json
         sqlite-utils tables --counts github.db
     - name: Fetch releases, commits, issues
       run: |-
-        # Just run against repos labelled with 'datasette-io'
-        sqlite-utils github.db "
-        select full_name from repos where rowid in (
-            select repos.rowid from repos, json_each(repos.topics) j
-            where j.value = 'datasette-io'
-        )" --csv --no-headers | while read repo;
+        sqlite-utils github.db "select full_name from repos" \
+          --csv --no-headers | while read repo;
             do github-to-sqlite releases \
                     github.db $(echo $repo | tr -d '\r') -a auth.json;
                 sleep 2;
