@@ -34,7 +34,7 @@ FTS_CONFIG = {
 
 def save_issues(db, issues):
     if "milestones" not in db.table_names():
-        db["milestones"].create({"id": int}, pk="id")
+        db["milestones"].create({"id": int, "title": str, "description": str}, pk="id")
     for original in issues:
         # Ignore all of the _url fields
         issue = {
