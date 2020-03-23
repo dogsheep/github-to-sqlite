@@ -2,6 +2,19 @@ import requests
 
 
 class GitHubError(Exception):
+    def __init__(self, message, status_code):
+        self.message = message
+        self.status_code = status_code
+
+    @classmethod
+    def from_response(cls, response):
+        message = response.json()["message"]
+        if "git repository is empty" in message.lower():
+            cls = GitHubRepositoryEmpty
+        return cls(message, response.status_code)
+
+
+class GitHubRepositoryEmpty(GitHubError):
     pass
 
 
@@ -207,12 +220,15 @@ def fetch_commits(repo, token=None, stop_when=None):
         stop_when = lambda commit: False
     headers = make_headers(token)
     url = "https://api.github.com/repos/{}/commits".format(repo)
-    for commits in paginate(url, headers):
-        for commit in commits:
-            if stop_when(commit):
-                return
-            else:
-                yield commit
+    try:
+        for commits in paginate(url, headers):
+            for commit in commits:
+                if stop_when(commit):
+                    return
+                else:
+                    yield commit
+    except GitHubRepositoryEmpty:
+        return
 
 
 def fetch_all_starred(username=None, token=None):
@@ -253,13 +269,13 @@ def fetch_user(username=None, token=None):
 def paginate(url, headers=None):
     while url:
         response = requests.get(url, headers=headers)
+        data = response.json()
+        if isinstance(data, dict) and data.get("message"):
+            raise GitHubError.from_response(response)
         try:
             url = response.links.get("next").get("url")
         except AttributeError:
             url = None
-        data = response.json()
-        if isinstance(data, dict) and data.get("message"):
-            raise GitHubError(repr(data))
         yield data
 
 
