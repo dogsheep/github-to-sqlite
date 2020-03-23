@@ -53,6 +53,8 @@ jobs:
                 sleep 2;
             done;
         sqlite-utils tables --counts github.db
+        # Delete email addresses from raw_authors
+        sqlite3 github.db "update raw_authors set email = ''"
     - name: Set up Cloud Run
       uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
       with:
