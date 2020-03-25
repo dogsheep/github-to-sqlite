@@ -71,5 +71,6 @@ jobs:
         datasette publish cloudrun github.db \
             -m demo-metadata.json \
             --service github-to-sqlite \
+            --install=py-gfm \
             --install=datasette-search-all \
             --install=datasette-render-markdown
