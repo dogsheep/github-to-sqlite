@@ -1,0 +1,189 @@
+{
+    "title": "github-to-sqlite demo",
+    "about": "github-to-sqlite",
+    "about_url": "https://github.com/dogsheep/github-to-sqlite",
+    "databases": {
+        "github": {
+            "tables": {
+                "users": {
+                    "label_column": "login"
+                },
+                "issues": {
+                    "sort_desc": "updated_at",
+                    "facets": [
+                        "state",
+                        "repo",
+                        "type"
+                    ],
+                    "plugins": {
+                        "datasette-render-markdown": {
+                            "columns": [
+                                "body"
+                            ],
+                            "extra_tags": [
+                                "img",
+                                "hr",
+                                "br",
+                                "details",
+                                "summary",
+                                "input",
+                                "div",
+                                "span"
+                            ],
+                            "extra_attrs": {
+                                "input": [
+                                    "type",
+                                    "disabled",
+                                    "checked"
+                                ],
+                                "img": [
+                                    "src"
+                                ],
+                                "div": [
+                                    "class"
+                                ],
+                                "span": [
+                                    "class"
+                                ]
+                            },
+                            "extensions": [
+                                "mdx_gfm:GithubFlavoredMarkdownExtension"
+                            ]
+                        }
+                    }
+                },
+                "issue_comments": {
+                    "sort_desc": "updated_at",
+                    "facets": [
+                        "author_association",
+                        "user",
+                        "issue"
+                    ],
+                    "plugins": {
+                        "datasette-render-markdown": {
+                            "columns": [
+                                "body"
+                            ],
+                            "extra_tags": [
+                                "img",
+                                "hr",
+                                "br",
+                                "details",
+                                "summary",
+                                "input",
+                                "div",
+                                "span"
+                            ],
+                            "extra_attrs": {
+                                "input": [
+                                    "type",
+                                    "disabled",
+                                    "checked"
+                                ],
+                                "img": [
+                                    "src"
+                                ],
+                                "div": [
+                                    "class"
+                                ],
+                                "span": [
+                                    "class"
+                                ]
+                            },
+                            "extensions": [
+                                "mdx_gfm:GithubFlavoredMarkdownExtension"
+                            ]
+                        }
+                    }
+                },
+                "repos": {
+                    "sort_desc": "updated_at"
+                },
+                "commits": {
+                    "sort_desc": "author_date",
+                    "facets": [
+                        "repo",
+                        "author"
+                    ]
+                },
+                "releases": {
+                    "sort_desc": "created_at",
+                    "plugins": {
+                        "datasette-render-markdown": {
+                            "columns": [
+                                "body"
+                            ],
+                            "extra_tags": [
+                                "img",
+                                "hr",
+                                "br",
+                                "details",
+                                "summary",
+                                "input",
+                                "div",
+                                "span"
+                            ],
+                            "extra_attrs": {
+                                "input": [
+                                    "type",
+                                    "disabled",
+                                    "checked"
+                                ],
+                                "img": [
+                                    "src"
+                                ],
+                                "div": [
+                                    "class"
+                                ],
+                                "span": [
+                                    "class"
+                                ]
+                            },
+                            "extensions": [
+                                "mdx_gfm:GithubFlavoredMarkdownExtension"
+                            ]
+                        }
+                    }
+                },
+                "milestones": {
+                    "plugins": {
+                        "datasette-render-markdown": {
+                            "columns": [
+                                "description"
+                            ],
+                            "extra_tags": [
+                                "img",
+                                "hr",
+                                "br",
+                                "details",
+                                "summary",
+                                "input",
+                                "div",
+                                "span"
+                            ],
+                            "extra_attrs": {
+                                "input": [
+                                    "type",
+                                    "disabled",
+                                    "checked"
+                                ],
+                                "img": [
+                                    "src"
+                                ],
+                                "div": [
+                                    "class"
+                                ],
+                                "span": [
+                                    "class"
+                                ]
+                            },
+                            "extensions": [
+                                "mdx_gfm:GithubFlavoredMarkdownExtension"
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
