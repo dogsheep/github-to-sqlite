@@ -143,6 +143,8 @@ def save_issue_comment(db, comment):
 
 def fetch_repo(repo, token=None):
     headers = make_headers(token)
+    # Get topics:
+    headers["Accept"] = "application/vnd.github.mercy-preview+json"
     owner, slug = repo.split("/")
     url = "https://api.github.com/repos/{}/{}".format(owner, slug)
     return requests.get(url, headers=headers).json()
