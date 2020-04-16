@@ -76,4 +76,5 @@ jobs:
             --service github-to-sqlite \
             --install=py-gfm \
             --install=datasette-search-all \
-            --install=datasette-render-markdown
+            --install=datasette-render-markdown \
+            --install=datasette-pretty-json
