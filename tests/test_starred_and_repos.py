@@ -189,6 +189,9 @@ def test_foreign_keys(db):
             table="repos", column="license", other_table="licenses", other_column="key"
         ),
         ForeignKey(
+            table="repos", column="organization", other_table="users", other_column="id"
+        ),
+        ForeignKey(
             table="repos", column="owner", other_table="users", other_column="id"
         ),
     ] == sorted(foreign_keys)
