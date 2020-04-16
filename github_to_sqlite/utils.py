@@ -160,12 +160,16 @@ def save_repo(db, repo):
     }
     to_save["owner"] = save_user(db, to_save["owner"])
     to_save["license"] = save_license(db, to_save["license"])
+    if "organization" in to_save:
+        to_save["organization"] = save_user(db, to_save["organization"])
+    else:
+        to_save["organization"] = None
     repo_id = (
         db["repos"]
         .insert(
             to_save,
             pk="id",
-            foreign_keys=(("owner", "users", "id"),),
+            foreign_keys=(("owner", "users", "id"), ("organization", "users", "id")),
             alter=True,
             replace=True,
         )
