@@ -43,7 +43,7 @@ jobs:
         sqlite-utils tables --counts github.db
     - name: Fetch releases, commits, issues, contributors
       run: |-
-        sqlite-utils github.db "select full_name from repos" \
+        sqlite-utils github.db "select full_name from repos union select 'simonw/datasette' as full_name union select 'simonw/sqlite-utils' as full_name" \
           --csv --no-headers | while read repo;
             do  github-to-sqlite releases \
                     github.db $(echo $repo | tr -d '\r');
