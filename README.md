@@ -8,7 +8,7 @@ Save data from GitHub to a SQLite database.
 
 ## Demo
 
-https://github-to-sqlite.dogsheep.net/ hosts a [Datasette](https://datasette.readthedocs.io/) demo of a database created by [running this tool](https://github.com/dogsheep/github-to-sqlite/blob/471cf4f045d25bc319d61b9de3a698beaf1a6c96/.github/workflows/deploy-demo.yml#L40-L60) against all of the repositories in the [Dogsheep GitHub organization](https://github.com/dogsheep).
+https://github-to-sqlite.dogsheep.net/ hosts a [Datasette](https://datasette.readthedocs.io/) demo of a database created by [running this tool](https://github.com/dogsheep/github-to-sqlite/blob/471cf4f045d25bc319d61b9de3a698beaf1a6c96/.github/workflows/deploy-demo.yml#L40-L60) against all of the repositories in the [Dogsheep GitHub organization](https://github.com/dogsheep), plus the [datasette](https://github.com/simonw/datasette) and [sqlite-utils](https://github.com/simonw/sqlite-utils) repositories.
 
 ## How to install
 
