@@ -283,6 +283,9 @@ def fetch_user(username=None, token=None):
 def paginate(url, headers=None):
     while url:
         response = requests.get(url, headers=headers)
+        # For HTTP 204 no-content this yields an empty list
+        if response.status_code == 204:
+            return
         data = response.json()
         if isinstance(data, dict) and data.get("message"):
             raise GitHubError.from_response(response)
