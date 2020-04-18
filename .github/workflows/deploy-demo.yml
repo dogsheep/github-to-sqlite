@@ -41,7 +41,7 @@ jobs:
       run: |-
         github-to-sqlite repos github.db dogsheep
         sqlite-utils tables --counts github.db
-    - name: Fetch releases, commits, issues
+    - name: Fetch releases, commits, issues, contributors
       run: |-
         sqlite-utils github.db "select full_name from repos" \
           --csv --no-headers | while read repo;
@@ -49,6 +49,9 @@ jobs:
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
                 github-to-sqlite commits \
+                    github.db $(echo $repo | tr -d '\r');
+                sleep 2;
+                github-to-sqlite contributors \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
                 github-to-sqlite issues \

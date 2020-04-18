@@ -63,6 +63,14 @@ The command accepts one or more repositories.
 
 By default it will stop as soon as it sees a commit that has previously been retrieved. You can force it to retrieve all commits (including those that have been previously inserted) using `--all`.
 
+## Fetching contributors to a repository
+
+The `contributors` command retrieves details of all of the contributors for one or more repositories.
+
+    $ github-to-sqlite contributors github.db simonw/datasette simonw/sqlite-utils
+
+The command accepts one or more repositories. It populates a `contributors` table, with foreign keys to `repos` and `users` and a `contributions` table listing the number of commits to that repository for each contributor.
+
 ## Fetching repos belonging to a user or organization
 
 The `repos` command fetches repos belonging to a user or organization.

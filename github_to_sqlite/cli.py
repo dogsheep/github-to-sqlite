@@ -202,6 +202,33 @@ def releases(db_path, repos, auth):
 )
 @click.argument("repos", type=str, nargs=-1)
 @click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def contributors(db_path, repos, auth):
+    "Save contributors for the specified repos"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    for repo in repos:
+        repo_full = utils.fetch_repo(repo, token)
+        utils.save_repo(db, repo_full)
+        contributors = utils.fetch_contributors(repo, token)
+        utils.save_contributors(db, contributors, repo_full["id"])
+        time.sleep(1)
+    utils.ensure_fts(db)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("repos", type=str, nargs=-1)
+@click.option(
     "--all",
     is_flag=True,
     default=False,

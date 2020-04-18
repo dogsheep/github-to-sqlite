@@ -90,7 +90,7 @@ def save_user(db, user):
     # so fill in 'name' from 'login' so Datasette foreign keys display
     if to_save.get("name") is None:
         to_save["name"] = to_save["login"]
-    return db["users"].insert(to_save, pk="id", alter=True, replace=True).last_pk
+    return db["users"].upsert(to_save, pk="id", alter=True).last_pk
 
 
 def save_milestone(db, milestone):
@@ -215,11 +215,18 @@ def fetch_issue_comments(repo, token=None, issue=None):
         yield from comments
 
 
-def fetch_releases(repo, token=None, issue=None):
+def fetch_releases(repo, token=None):
     headers = make_headers(token)
     url = "https://api.github.com/repos/{}/releases".format(repo)
     for releases in paginate(url, headers):
         yield from releases
+
+
+def fetch_contributors(repo, token=None):
+    headers = make_headers(token)
+    url = "https://api.github.com/repos/{}/contributors".format(repo)
+    for contributors in paginate(url, headers):
+        yield from contributors
 
 
 def fetch_commits(repo, token=None, stop_when=None):
@@ -340,6 +347,22 @@ def save_releases(db, releases, repo_id=None):
             foreign_keys=[("uploader", "users", "id"), ("release", "releases", "id"),],
             alter=True,
         )
+
+
+def save_contributors(db, contributors, repo_id):
+    contributor_rows_to_add = []
+    for contributor in contributors:
+        contributions = contributor.pop("contributions")
+        user_id = save_user(db, contributor)
+        contributor_rows_to_add.append(
+            {"repo_id": repo_id, "user_id": user_id, "contributions": contributions}
+        )
+    db["contributors"].insert_all(
+        contributor_rows_to_add,
+        pk=("repo_id", "user_id"),
+        foreign_keys=[("repo_id", "repos", "id"), ("user_id", "users", "id")],
+        replace=True,
+    )
 
 
 def save_commits(db, commits, repo_id=None):
