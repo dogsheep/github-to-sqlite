@@ -172,6 +172,7 @@ def save_repo(db, repo):
             foreign_keys=(("owner", "users", "id"), ("organization", "users", "id")),
             alter=True,
             replace=True,
+            columns={"organization": int},
         )
         .last_pk
     )
