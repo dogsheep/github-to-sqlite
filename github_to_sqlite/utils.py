@@ -34,7 +34,7 @@ FTS_CONFIG = {
 
 def save_issues(db, issues):
     if "milestones" not in db.table_names():
-        db["milestones"].create({"id": int, "title": str, "description": str}, pk="id")
+        db["milestones"].create({"id": int, "title": str}, pk="id")
     for original in issues:
         # Ignore all of the _url fields
         issue = {
@@ -54,7 +54,7 @@ def save_issues(db, issues):
         labels = issue.pop("labels")
         # Extract milestone
         if issue["milestone"]:
-            issue["milestone"] = save_milestone(db, issue["milestone"])
+            issue["milestone"] = save_milestone(db, issue["milestone"], issue["repo"])
         # For the moment we ignore the assignees=[] array but we DO turn assignee
         # singular into a foreign key reference
         issue.pop("assignees", None)
@@ -94,9 +94,10 @@ def save_user(db, user):
     return db["users"].upsert(to_save, pk="id", alter=True).last_pk
 
 
-def save_milestone(db, milestone):
+def save_milestone(db, milestone, repo):
     milestone = dict(milestone)
     milestone["creator"] = save_user(db, milestone["creator"])
+    milestone["repo"] = repo
     milestone.pop("labels_url", None)
     milestone.pop("url", None)
     return (
@@ -107,6 +108,7 @@ def save_milestone(db, milestone):
             foreign_keys=[("creator", "users", "id")],
             alter=True,
             replace=True,
+            columns={"creator": int,},
         )
         .last_pk
     )

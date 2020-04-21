@@ -121,6 +121,7 @@ def test_milestones(db):
         {
             "html_url": "https://github.com/simonw/datasette/milestone/6",
             "id": 2949431,
+            "repo": "simonw/datasette",
             "node_id": "MDk6TWlsZXN0b25lMjk0OTQzMQ==",
             "number": 6,
             "title": "Custom templates edition",
