@@ -131,7 +131,7 @@ def save_issue_comment(db, comment):
     # Is the issue in the DB already?
     issue_rows = list(
         db["issues"].rows_where(
-            "number = :number and repo = :repo",
+            "number = :number and repo = (select id from repos where full_name = :repo)",
             {"repo": "{}/{}".format(user_slug, repo_slug), "number": issue_number},
         )
     )
