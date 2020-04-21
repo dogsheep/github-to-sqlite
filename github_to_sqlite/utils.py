@@ -34,7 +34,14 @@ FTS_CONFIG = {
 
 def save_issues(db, issues, repo):
     if "milestones" not in db.table_names():
-        db["milestones"].create({"id": int, "title": str, "description": str}, pk="id")
+        if "users" not in db.table_names():
+            # So we can define the foreign key from milestones:
+            db["users"].create({"id": int}, pk="id")
+        db["milestones"].create(
+            {"id": int, "title": str, "description": str, "repo": int},
+            pk="id",
+            foreign_keys=(("repo", "repos", "id"), ("creator", "users", "id")),
+        )
     for original in issues:
         # Ignore all of the _url fields
         issue = {
