@@ -14,15 +14,19 @@ def issues():
 @pytest.fixture
 def db(issues):
     db = sqlite_utils.Database(memory=True)
-    utils.save_issues(db, issues)
+    db["repos"].insert({"id": 1}, pk="id")
+    utils.save_issues(db, issues, {"id": 1})
     return db
 
 
 def test_tables(db):
-    assert {"issues", "users", "labels", "issues_labels", "milestones"} == set(
+    assert {"issues", "users", "labels", "repos", "issues_labels", "milestones"} == set(
         db.table_names()
     )
     assert {
+        ForeignKey(
+            table="issues", column="repo", other_table="repos", other_column="id"
+        ),
         ForeignKey(
             table="issues",
             column="milestone",
@@ -44,7 +48,7 @@ def test_issues(db):
         {
             "id": 488343304,
             "node_id": "MDExOlB1bGxSZXF1ZXN0MzEzMzg0OTI2",
-            "repo": "simonw/datasette",
+            "repo": 1,
             "number": 571,
             "title": "detect_fts now works with alternative table escaping",
             "user": 9599,
@@ -64,7 +68,7 @@ def test_issues(db):
         {
             "id": 489429284,
             "node_id": "MDU6SXNzdWU0ODk0MjkyODQ=",
-            "repo": "simonw/datasette",
+            "repo": 1,
             "number": 572,
             "title": "Error running datasette publish with just --source_url",
             "user": 9599,
@@ -82,20 +86,6 @@ def test_issues(db):
             "pull_request": None,
         },
     ] == issue_rows
-    assert [
-        ForeignKey(
-            table="issues",
-            column="milestone",
-            other_table="milestones",
-            other_column="id",
-        ),
-        ForeignKey(
-            table="issues", column="assignee", other_table="users", other_column="id"
-        ),
-        ForeignKey(
-            table="issues", column="user", other_table="users", other_column="id"
-        ),
-    ] == db["issues"].foreign_keys
 
 
 def test_users(db):
@@ -121,7 +111,7 @@ def test_milestones(db):
         {
             "html_url": "https://github.com/simonw/datasette/milestone/6",
             "id": 2949431,
-            "repo": "simonw/datasette",
+            "repo": 1,
             "node_id": "MDk6TWlsZXN0b25lMjk0OTQzMQ==",
             "number": 6,
             "title": "Custom templates edition",

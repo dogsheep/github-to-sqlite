@@ -32,18 +32,16 @@ FTS_CONFIG = {
 }
 
 
-def save_issues(db, issues):
+def save_issues(db, issues, repo):
     if "milestones" not in db.table_names():
-        db["milestones"].create({"id": int, "title": str}, pk="id")
+        db["milestones"].create({"id": int, "title": str, "description": str}, pk="id")
     for original in issues:
         # Ignore all of the _url fields
         issue = {
             key: value for key, value in original.items() if not key.endswith("url")
         }
         # Add repo key
-        issue["repo"] = original["repository_url"].split(
-            "https://api.github.com/repos/"
-        )[1]
+        issue["repo"] = repo["id"]
         # Pull request can be flattened to just their URL
         if issue.get("pull_request"):
             issue["pull_request"] = issue["pull_request"]["url"].split(
@@ -54,7 +52,7 @@ def save_issues(db, issues):
         labels = issue.pop("labels")
         # Extract milestone
         if issue["milestone"]:
-            issue["milestone"] = save_milestone(db, issue["milestone"], issue["repo"])
+            issue["milestone"] = save_milestone(db, issue["milestone"], repo["id"])
         # For the moment we ignore the assignees=[] array but we DO turn assignee
         # singular into a foreign key reference
         issue.pop("assignees", None)
@@ -70,10 +68,11 @@ def save_issues(db, issues):
                 ("user", "users", "id"),
                 ("assignee", "users", "id"),
                 ("milestone", "milestones", "id"),
+                ("repo", "repos", "id"),
             ],
             alter=True,
             replace=True,
-            columns={"user": int, "assignee": int, "milestone": int,},
+            columns={"user": int, "assignee": int, "milestone": int, "repo": int},
         )
         # m2m for labels
         for label in labels:
@@ -94,10 +93,10 @@ def save_user(db, user):
     return db["users"].upsert(to_save, pk="id", alter=True).last_pk
 
 
-def save_milestone(db, milestone, repo):
+def save_milestone(db, milestone, repo_id):
     milestone = dict(milestone)
     milestone["creator"] = save_user(db, milestone["creator"])
-    milestone["repo"] = repo
+    milestone["repo"] = repo_id
     milestone.pop("labels_url", None)
     milestone.pop("url", None)
     return (
@@ -105,10 +104,10 @@ def save_milestone(db, milestone, repo):
         .insert(
             milestone,
             pk="id",
-            foreign_keys=[("creator", "users", "id")],
+            foreign_keys=[("creator", "users", "id"), ("repo", "repos", "id")],
             alter=True,
             replace=True,
-            columns={"creator": int,},
+            columns={"creator": int, "repo": int},
         )
         .last_pk
     )
@@ -144,11 +143,11 @@ def save_issue_comment(db, comment):
     return last_pk
 
 
-def fetch_repo(repo, token=None):
+def fetch_repo(full_name, token=None):
     headers = make_headers(token)
     # Get topics:
     headers["Accept"] = "application/vnd.github.mercy-preview+json"
-    owner, slug = repo.split("/")
+    owner, slug = full_name.split("/")
     url = "https://api.github.com/repos/{}/{}".format(owner, slug)
     return requests.get(url, headers=headers).json()
 

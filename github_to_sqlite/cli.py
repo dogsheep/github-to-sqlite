@@ -58,13 +58,14 @@ def issues(db_path, repo, issue, auth, load):
     "Save issues for a specified repository, e.g. simonw/datasette"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
+    repo_full = utils.fetch_repo(repo, token)
     if load:
         issues = json.load(open(load))
     else:
         issues = utils.fetch_issues(repo, token, issue)
 
     issues = list(issues)
-    utils.save_issues(db, issues)
+    utils.save_issues(db, issues, repo_full)
     utils.ensure_fts(db)
 
 
