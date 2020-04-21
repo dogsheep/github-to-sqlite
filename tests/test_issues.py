@@ -50,7 +50,7 @@ def test_issues(db):
             "user": 9599,
             "state": "closed",
             "locked": 0,
-            "assignee": "9599",
+            "assignee": 9599,
             "milestone": None,
             "comments": 0,
             "created_at": "2019-09-03T00:23:39Z",
@@ -82,6 +82,20 @@ def test_issues(db):
             "pull_request": None,
         },
     ] == issue_rows
+    assert [
+        ForeignKey(
+            table="issues",
+            column="milestone",
+            other_table="milestones",
+            other_column="id",
+        ),
+        ForeignKey(
+            table="issues", column="assignee", other_table="users", other_column="id"
+        ),
+        ForeignKey(
+            table="issues", column="user", other_table="users", other_column="id"
+        ),
+    ] == db["issues"].foreign_keys
 
 
 def test_users(db):

@@ -73,6 +73,7 @@ def save_issues(db, issues):
             ],
             alter=True,
             replace=True,
+            columns={"user": int, "assignee": int, "milestone": int,},
         )
         # m2m for labels
         for label in labels:
