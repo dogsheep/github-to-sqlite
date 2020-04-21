@@ -38,7 +38,7 @@ def save_issues(db, issues, repo):
             # So we can define the foreign key from milestones:
             db["users"].create({"id": int}, pk="id")
         db["milestones"].create(
-            {"id": int, "title": str, "description": str, "repo": int},
+            {"id": int, "title": str, "description": str, "creator": int, "repo": int},
             pk="id",
             foreign_keys=(("repo", "repos", "id"), ("creator", "users", "id")),
         )
