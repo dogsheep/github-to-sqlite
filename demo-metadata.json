@@ -146,6 +146,10 @@
                     }
                 },
                 "milestones": {
+                    "facets": [
+                        "repo",
+                        "state"
+                    ],
                     "plugins": {
                         "datasette-render-markdown": {
                             "columns": [
