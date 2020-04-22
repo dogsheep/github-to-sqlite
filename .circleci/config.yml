@@ -47,6 +47,7 @@ jobs:
             pip install -e .
             pip install pytest
             github-to-sqlite --help
+            find /home/circleci/project/
             pytest
   test-python-install:
     parameters:
