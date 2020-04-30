@@ -1,6 +1,7 @@
 # github-to-sqlite
 
 [![PyPI](https://img.shields.io/pypi/v/github-to-sqlite.svg)](https://pypi.org/project/github-to-sqlite/)
+[![Changelog](https://img.shields.io/github/v/release/dogsheep/github-to-sqlite?include_prereleases&label=changelog)](https://github.com/dogsheep/github-to-sqlite/releases)
 [![CircleCI](https://circleci.com/gh/dogsheep/github-to-sqlite.svg?style=svg)](https://circleci.com/gh/dogsheep/github-to-sqlite)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/dogsheep/github-to-sqlite/blob/master/LICENSE)
 
@@ -95,3 +96,15 @@ The `starred` command fetches the repos that have been starred by a user.
     $ github-to-sqlite starred github.db simonw
 
 If you are using an `auth.json` file you can omit the username to retrieve the starred repos for the authenticated user.
+
+## Scraping dependents for a repository
+
+The GitHub dependency graph can show other GitHub projects that depend on a specific repo, for example [simonw/datasette/network/dependents](https://github.com/simonw/datasette/network/dependents).
+
+This data is not yet available through the GitHub API. The `scrape-dependents` command scrapes those pages and uses the GitHub API to load full versions of the dependent repositories.
+
+    $ github-to-sqlite scrape-dependents github.db simonw/datasette
+
+The command accepts one or more repositories.
+
+Add `-v` for verbose output.

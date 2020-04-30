@@ -1,4 +1,5 @@
 import click
+import datetime
 import pathlib
 import os
 import sqlite_utils
@@ -264,6 +265,69 @@ def commits(db_path, repos, all, auth):
         commits = utils.fetch_commits(repo, token, stop_when)
         utils.save_commits(db, commits, repo_full["id"])
         time.sleep(1)
+
+    utils.ensure_fts(db)
+
+
+@cli.command(name="scrape-dependents")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("repos", type=str, nargs=-1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "-v", "--verbose", is_flag=True, help="Verbose output",
+)
+def scrape_dependents(db_path, repos, auth, verbose):
+    "Scrape dependents for specified repos"
+    try:
+        import bs4
+    except ImportError:
+        raise click.ClickException("Optional dependency bs4 is needed for this command")
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+
+    for repo in repos:
+        repo_full = utils.fetch_repo(repo, token)
+        utils.save_repo(db, repo_full)
+
+        for dependent_repo in utils.scrape_dependents(repo, verbose):
+            # Don't fetch repo details if it's already in our DB
+            existing = list(db["repos"].rows_where("full_name = ?", [dependent_repo]))
+            dependent_id = None
+            if not existing:
+                dependent_full = utils.fetch_repo(dependent_repo, token)
+                time.sleep(1)
+                utils.save_repo(db, dependent_full)
+                dependent_id = dependent_full["id"]
+            else:
+                dependent_id = existing[0]["id"]
+            # Only insert if it isn't already there:
+            if not db["dependents"].exists() or not list(
+                db["dependents"].rows_where(
+                    "repo = ? and dependent = ?", [repo_full["id"], dependent_id]
+                )
+            ):
+                db["dependents"].insert(
+                    {
+                        "repo": repo_full["id"],
+                        "dependent": dependent_id,
+                        "first_seen_utc": datetime.datetime.utcnow().isoformat(),
+                    },
+                    pk=("repo", "dependent"),
+                    foreign_keys=(
+                        ("repo", "repos", "id"),
+                        ("dependent", "repos", "id"),
+                    ),
+                )
 
     utils.ensure_fts(db)
 

@@ -1,4 +1,5 @@
 import requests
+import time
 
 
 class GitHubError(Exception):
@@ -156,7 +157,9 @@ def fetch_repo(full_name, token=None):
     headers["Accept"] = "application/vnd.github.mercy-preview+json"
     owner, slug = full_name.split("/")
     url = "https://api.github.com/repos/{}/{}".format(owner, slug)
-    return requests.get(url, headers=headers).json()
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json()
 
 
 def save_repo(db, repo):
@@ -447,3 +450,32 @@ def ensure_fts(db):
         if table not in existing_tables:
             continue
         db[table].enable_fts(columns, create_triggers=True)
+
+
+def scrape_dependents(repo, verbose=False):
+    # Optional dependency:
+    from bs4 import BeautifulSoup
+
+    url = "https://github.com/{}/network/dependents".format(repo)
+    while url:
+        if verbose:
+            print(url)
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content, "html.parser")
+        repos = [
+            a["href"].lstrip("/")
+            for a in soup.select("a[data-hovercard-type=repository]")
+        ]
+        if verbose:
+            print(repos)
+        yield from repos
+        # next page?
+        try:
+            next_link = soup.select(".paginate-container")[0].find("a", text="Next")
+        except IndexError:
+            break
+        if next_link is not None:
+            url = next_link["href"]
+            time.sleep(1)
+        else:
+            url = None
