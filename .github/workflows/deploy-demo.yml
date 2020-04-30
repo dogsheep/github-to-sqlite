@@ -61,6 +61,8 @@ jobs:
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
             done;
+        # Scrape dependents
+        github-to-sqlite scrape-dependents github.db simonw/datasette simonw/sqlite-utils -v
         sqlite-utils tables --counts github.db
         # Delete email addresses from raw_authors
         sqlite3 github.db "update raw_authors set email = ''"
