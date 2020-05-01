@@ -39,6 +39,8 @@ jobs:
       run: |
         echo "{\"github_personal_token\": \"$GITHUB_ACCESS_TOKEN\"}" > auth.json
     - name: Fetch previous copy of database
+      if: |-
+        !contains(github.event.head_commit.message, 'REFRESH_DB')
       run: |-
         # So we can keep track of when we first saw each dependent repo
         wget https://github-to-sqlite.dogsheep.net/github.db
@@ -48,7 +50,7 @@ jobs:
         sqlite-utils tables --counts github.db
     - name: Fetch releases, commits, issues, contributors
       run: |-
-        sqlite-utils github.db "select full_name from repos union select 'simonw/datasette' as full_name union select 'simonw/sqlite-utils' as full_name" \
+        sqlite-utils github.db "select full_name from repos where owner = 53015001 union select 'simonw/datasette' as full_name union select 'simonw/sqlite-utils' as full_name" \
           --csv --no-headers | while read repo;
             do  github-to-sqlite releases \
                     github.db $(echo $repo | tr -d '\r');
