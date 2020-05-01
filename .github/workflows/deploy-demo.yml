@@ -87,4 +87,5 @@ jobs:
             --install=py-gfm \
             --install=datasette-search-all \
             --install=datasette-render-markdown \
-            --install=datasette-pretty-json
+            --install=datasette-pretty-json \
+            --install=datasette-json-html
