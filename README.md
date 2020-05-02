@@ -25,6 +25,8 @@ Run this command and paste in your new token:
 
 This will create a file called `auth.json` in your current directory containing the required value. To save the file at a different path or filename, use the `--auth=myauth.json` option.
 
+As an alternative to using an `auth.json` file you can add your access token to an environment variable called `GITHUB_TOKEN`.
+
 ## Fetching issues for a repository
 
 The `issues` command retrieves all of the issues belonging to a specified repository.

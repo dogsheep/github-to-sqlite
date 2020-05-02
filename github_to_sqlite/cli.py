@@ -335,4 +335,7 @@ def load_token(auth):
         token = json.load(open(auth))["github_personal_token"]
     except (KeyError, FileNotFoundError):
         token = None
+    if token is None:
+        # Fallback to GITHUB_TOKEN environment variable
+        token = os.environ.get("GITHUB_TOKEN") or None
     return token
