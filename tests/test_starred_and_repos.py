@@ -84,6 +84,7 @@ def test_repos(db):
             "watchers": 2,
             "default_branch": "master",
             "organization": 457,
+            "topics": None,
         }
     ] == repos
 
@@ -235,5 +236,6 @@ def test_repos_starred_view(db):
             "watchers": 2,
             "default_branch": "master",
             "organization": 457,
+            "topics": None,
         }
     ] == rows

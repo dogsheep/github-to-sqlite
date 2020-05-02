@@ -21,11 +21,14 @@ def db(releases, repo):
     db = sqlite_utils.Database(memory=True)
     utils.save_repo(db, repo)
     utils.save_releases(db, releases, repo["id"])
+    utils.ensure_db_shape(db)
     return db
 
 
 def test_tables(db):
-    assert {"users", "licenses", "repos", "releases", "assets"} == set(db.table_names())
+    assert {"users", "licenses", "repos", "releases", "assets"}.issubset(
+        db.table_names()
+    )
     assert {
         ForeignKey(
             table="releases", column="author", other_table="users", other_column="id"
@@ -142,3 +145,50 @@ def test_releases(db):
             "release": 19993251,
         }
     ] == asset_rows
+
+
+def test_recent_releases_view(db):
+    assert "recent_releases" in db.view_names()
+    rows = list(db["recent_releases"].rows)
+    assert [
+        {
+            "repo": "https://github.com/dogsheep/github-to-sqlite",
+            "release": "https://github.com/dogsheep/github-to-sqlite/releases/tag/0.5",
+            "date": "2019-10-13",
+            "body_markdown": "* New command: `github-to-sqlite issue-comments` for importing comments on issues - #7\r\n* `github-to-sqlite issues` now accepts optional `--issue=1` argument\r\n* Fixed bug inserting users into already-created table with wrong columns - #6",
+            "published_at": "2019-10-13T05:30:05Z",
+            "topics": "[]",
+        },
+        {
+            "repo": "https://github.com/dogsheep/github-to-sqlite",
+            "release": "https://github.com/dogsheep/github-to-sqlite/releases/tag/0.4",
+            "date": "2019-09-17",
+            "body_markdown": "* Added `github-to-sqlite repos` command, #3 ",
+            "published_at": "2019-09-17T00:19:42Z",
+            "topics": "[]",
+        },
+        {
+            "repo": "https://github.com/dogsheep/github-to-sqlite",
+            "release": "https://github.com/dogsheep/github-to-sqlite/releases/tag/0.3",
+            "date": "2019-09-14",
+            "body_markdown": "* `license` is now extracted from the `repos` table into a separate `licenses` table with a foreign key, #2\r\n\r\n",
+            "published_at": "2019-09-14T21:50:01Z",
+            "topics": "[]",
+        },
+        {
+            "repo": "https://github.com/dogsheep/github-to-sqlite",
+            "release": "https://github.com/dogsheep/github-to-sqlite/releases/tag/0.2",
+            "date": "2019-09-14",
+            "body_markdown": "* Added the `github-to-sqlite starred` command for retrieving starred repos, #1 ",
+            "published_at": "2019-09-14T21:32:34Z",
+            "topics": "[]",
+        },
+        {
+            "repo": "https://github.com/dogsheep/github-to-sqlite",
+            "release": "https://github.com/dogsheep/github-to-sqlite/releases/tag/0.1.1",
+            "date": "2019-09-14",
+            "body_markdown": "* Fix bug in authentication handling code",
+            "published_at": "2019-09-14T19:42:08Z",
+            "topics": "[]",
+        },
+    ] == rows

@@ -46,6 +46,21 @@ from
 order by
   starred_at desc""",
     ),
+    "recent_releases": (
+        {"repos", "releases"},
+        """select
+  repos.html_url as repo,
+  releases.html_url as release,
+  substr(releases.published_at, 0, 11) as date,
+  releases.body as body_markdown,
+  releases.published_at,
+  coalesce(repos.topics, '[]') as topics
+from
+  releases
+  join repos on repos.id = releases.repo
+order by
+  releases.published_at desc""",
+    ),
 }
 
 
@@ -217,7 +232,7 @@ def save_repo(db, repo):
             foreign_keys=(("owner", "users", "id"), ("organization", "users", "id")),
             alter=True,
             replace=True,
-            columns={"organization": int},
+            columns={"organization": int, "topics": str},
         )
         .last_pk
     )
