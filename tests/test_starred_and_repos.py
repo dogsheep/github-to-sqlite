@@ -20,8 +20,7 @@ def user():
 def db(starred, user):
     db = sqlite_utils.Database(memory=True)
     utils.save_stars(db, user, starred)
-    utils.ensure_foreign_keys(db)
-    utils.ensure_fts(db)
+    utils.ensure_db_shape(db)
     return db
 
 

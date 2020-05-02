@@ -1,6 +1,39 @@
 import requests
 import time
 
+FTS_CONFIG = {
+    # table: columns
+    "commits": ["message"],
+    "issue_comments": ["body"],
+    "issues": ["title", "body"],
+    "labels": ["name", "description"],
+    "licenses": ["name"],
+    "milestones": ["title", "description"],
+    "releases": ["name", "body"],
+    "repos": ["name", "description"],
+    "users": ["login", "name"],
+}
+
+VIEWS = {
+    # Name: (required_tables, SQL)
+    "dependent_repos": (
+        {"repos", "dependents"},
+        """select
+  repos.full_name as repo,
+  'https://github.com/' || dependent_repos.full_name as dependent,
+  dependent_repos.created_at as dependent_created,
+  dependent_repos.updated_at as dependent_updated,
+  dependent_repos.stargazers_count as dependent_stars,
+  dependent_repos.watchers_count as dependent_watchers
+from
+  dependents
+  join repos as dependent_repos on dependents.dependent = dependent_repos.id
+  join repos on dependents.repo = repos.id
+order by
+  dependent_repos.created_at desc""",
+    )
+}
+
 
 class GitHubError(Exception):
     def __init__(self, message, status_code):
@@ -17,20 +50,6 @@ class GitHubError(Exception):
 
 class GitHubRepositoryEmpty(GitHubError):
     pass
-
-
-FTS_CONFIG = {
-    # table: columns
-    "commits": ["message"],
-    "issue_comments": ["body"],
-    "issues": ["title", "body"],
-    "labels": ["name", "description"],
-    "licenses": ["name"],
-    "milestones": ["title", "description"],
-    "releases": ["name", "body"],
-    "repos": ["name", "description"],
-    "users": ["login", "name"],
-}
 
 
 def save_issues(db, issues, repo):
@@ -442,7 +461,12 @@ def save_commit_author(db, raw_author):
     )
 
 
-def ensure_fts(db):
+def ensure_db_shape(db):
+    "Ensure FTS is configured and expected FKS, views and (soon) indexes are present"
+    # Foreign keys:
+    ensure_foreign_keys(db)
+
+    # FTS:
     existing_tables = set(db.table_names())
     for table, columns in FTS_CONFIG.items():
         if "{}_fts".format(table) in existing_tables:
@@ -450,6 +474,15 @@ def ensure_fts(db):
         if table not in existing_tables:
             continue
         db[table].enable_fts(columns, create_triggers=True)
+
+    # Views:
+    existing_views = set(db.view_names())
+    existing_tables = set(db.table_names())
+    for view, (tables, sql) in VIEWS.items():
+        # Do all of the tables exist?
+        if not tables.issubset(existing_tables):
+            continue
+        db.create_view(view, sql, replace=True)
 
 
 def scrape_dependents(repo, verbose=False):
