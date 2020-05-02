@@ -63,6 +63,10 @@ order by
     ),
 }
 
+FOREIGN_KEYS = [
+    ("repos", "license", "licenses", "key"),
+]
+
 
 class GitHubError(Exception):
     def __init__(self, message, status_code):
@@ -128,7 +132,14 @@ def save_issues(db, issues, repo):
             ],
             alter=True,
             replace=True,
-            columns={"user": int, "assignee": int, "milestone": int, "repo": int},
+            columns={
+                "user": int,
+                "assignee": int,
+                "milestone": int,
+                "repo": int,
+                "title": str,
+                "body": str,
+            },
         )
         # m2m for labels
         for label in labels:
@@ -232,7 +243,12 @@ def save_repo(db, repo):
             foreign_keys=(("owner", "users", "id"), ("organization", "users", "id")),
             alter=True,
             replace=True,
-            columns={"organization": int, "topics": str},
+            columns={
+                "organization": int,
+                "topics": str,
+                "name": str,
+                "description": str,
+            },
         )
         .last_pk
     )
@@ -243,12 +259,6 @@ def save_license(db, license):
     if license is None:
         return None
     return db["licenses"].insert(license, pk="key", replace=True).last_pk
-
-
-def ensure_foreign_keys(db):
-    for expected_key in (("repos", "license", "licenses", "key"),):
-        if expected_key not in db[expected_key[0]].foreign_keys:
-            db[expected_key[0]].add_foreign_key(*expected_key[1:])
 
 
 def fetch_issues(repo, token=None, issue=None):
@@ -490,10 +500,26 @@ def save_commit_author(db, raw_author):
     )
 
 
+def ensure_foreign_keys(db):
+    for expected_foreign_key in FOREIGN_KEYS:
+        table, column, table2, column2 = expected_foreign_key
+        if (
+            expected_foreign_key not in db[table].foreign_keys
+            and
+            # Ensure all tables and columns exist
+            db[table].exists()
+            and db[table2].exists()
+            and column in db[table].columns_dict
+            and column2 in db[table2].columns_dict
+        ):
+            db[table].add_foreign_key(column, table2, column2)
+
+
 def ensure_db_shape(db):
     "Ensure FTS is configured and expected FKS, views and (soon) indexes are present"
     # Foreign keys:
     ensure_foreign_keys(db)
+    db.index_foreign_keys()
 
     # FTS:
     existing_tables = set(db.table_names())

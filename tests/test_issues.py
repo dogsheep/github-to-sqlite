@@ -14,7 +14,11 @@ def issues():
 @pytest.fixture
 def db(issues):
     db = sqlite_utils.Database(memory=True)
-    db["repos"].insert({"id": 1}, pk="id")
+    db["repos"].insert(
+        {"id": 1},
+        pk="id",
+        columns={"organization": int, "topics": str, "name": str, "description": str},
+    )
     utils.save_issues(db, issues, {"id": 1})
     return db
 
@@ -126,3 +130,23 @@ def test_milestones(db):
             "closed_at": "2017-12-10T02:05:05Z",
         }
     ] == milestone_rows
+
+
+def test_foreign_keys(db):
+    assert [
+        ForeignKey(
+            table="issues", column="repo", other_table="repos", other_column="id"
+        ),
+        ForeignKey(
+            table="issues",
+            column="milestone",
+            other_table="milestones",
+            other_column="id",
+        ),
+        ForeignKey(
+            table="issues", column="assignee", other_table="users", other_column="id"
+        ),
+        ForeignKey(
+            table="issues", column="user", other_table="users", other_column="id"
+        ),
+    ] == db["issues"].foreign_keys
