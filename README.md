@@ -99,6 +99,16 @@ The `starred` command fetches the repos that have been starred by a user.
 
 If you are using an `auth.json` file you can omit the username to retrieve the starred repos for the authenticated user.
 
+## Fetching users that have starred specific repos
+
+The `stargazers` command fetches the users that have starred the specified repos.
+
+    $ github-to-sqlite stargazers github.db simonw/datasette dogsheep/github-to-sqlite
+
+You can specify one or more repository using `owner/repo` syntax.
+
+Users fetched using this command will be inserted into the `users` table. Many-to-many records showing which repository they starred will be added to the `stars` table.
+
 ## Scraping dependents for a repository
 
 The GitHub dependency graph can show other GitHub projects that depend on a specific repo, for example [simonw/datasette/network/dependents](https://github.com/simonw/datasette/network/dependents).
