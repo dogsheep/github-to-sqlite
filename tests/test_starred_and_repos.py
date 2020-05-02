@@ -194,3 +194,46 @@ def test_foreign_keys(db):
             table="repos", column="owner", other_table="users", other_column="id"
         ),
     ] == sorted(foreign_keys)
+
+
+def test_repos_starred_view(db):
+    assert "repos_starred" in db.view_names()
+    rows = list(db["repos_starred"].rows)
+    assert [
+        {
+            "starred_at": "2019-09-14T08:35:12Z",
+            "starred_by": "simonw",
+            "id": 123,
+            "node_id": "MDEwOlJlcG9zaccbcckyMDgzNjkxNTM=",
+            "name": "repo-name",
+            "full_name": "owner-name/repo-name",
+            "private": 0,
+            "owner": 456,
+            "html_url": "https://github.com/owner-name/repo-name",
+            "description": "Repo description",
+            "fork": 0,
+            "created_at": "2019-09-14T00:50:14Z",
+            "updated_at": "2019-09-14T14:28:32Z",
+            "pushed_at": "2019-09-14T07:02:40Z",
+            "homepage": None,
+            "size": 7,
+            "stargazers_count": 2,
+            "watchers_count": 2,
+            "language": "Python",
+            "has_issues": 1,
+            "has_projects": 1,
+            "has_downloads": 1,
+            "has_wiki": 1,
+            "has_pages": 0,
+            "forks_count": 0,
+            "archived": 0,
+            "disabled": 0,
+            "open_issues_count": 0,
+            "license": "mit",
+            "forks": 0,
+            "open_issues": 0,
+            "watchers": 2,
+            "default_branch": "master",
+            "organization": 457,
+        }
+    ] == rows

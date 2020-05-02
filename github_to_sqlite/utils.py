@@ -31,7 +31,21 @@ from
   join repos on dependents.repo = repos.id
 order by
   dependent_repos.created_at desc""",
-    )
+    ),
+    "repos_starred": (
+        {"stars", "repos", "users"},
+        """select
+  stars.starred_at,
+  starring_user.login as starred_by,
+  repos.*
+from
+  repos
+  join stars on repos.id = stars.repo
+  join users as starring_user on stars.user = starring_user.id
+  join users on repos.owner = users.id
+order by
+  starred_at desc""",
+    ),
 }
 
 
