@@ -67,6 +67,9 @@ jobs:
                 github-to-sqlite issue-comments \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
+                github-to-sqlite stargazers \
+                    github.db $(echo $repo | tr -d '\r');
+                sleep 2;
             done;
         # Scrape dependents
         github-to-sqlite scrape-dependents github.db simonw/datasette simonw/sqlite-utils -v

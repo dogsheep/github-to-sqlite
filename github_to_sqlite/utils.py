@@ -328,6 +328,14 @@ def fetch_all_starred(username=None, token=None):
         yield from stars
 
 
+def fetch_stargazers(repo, token=None):
+    headers = make_headers(token)
+    headers["Accept"] = "application/vnd.github.v3.star+json"
+    url = "https://api.github.com/repos/{}/stargazers".format(repo)
+    for stargazers in paginate(url, headers):
+        yield from stargazers
+
+
 def fetch_all_repos(username=None, token=None):
     assert username or token, "Must provide username= or token= or both"
     headers = make_headers(token)
@@ -386,6 +394,17 @@ def save_stars(db, user, stars):
             pk=("user", "repo"),
             foreign_keys=("user", "repo"),
             replace=True,
+        )
+
+
+def save_stargazers(db, repo_id, stargazers):
+    for stargazer in stargazers:
+        starred_at = stargazer["starred_at"]
+        user_id = save_user(db, stargazer["user"])
+        db["stars"].upsert(
+            {"user": user_id, "repo": repo_id, "starred_at": starred_at},
+            pk=("user", "repo"),
+            foreign_keys=("user", "repo"),
         )
 
 

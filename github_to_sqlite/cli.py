@@ -138,6 +138,32 @@ def starred(db_path, username, auth, load):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
     required=True,
 )
+@click.argument("repos", type=str, nargs=-1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def stargazers(db_path, repos, auth):
+    "Fetch the users that have starred the specified repositories"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    for repo in repos:
+        full_repo = utils.fetch_repo(repo, token=token)
+        repo_id = utils.save_repo(db, full_repo)
+        stargazers = utils.fetch_stargazers(repo, token)
+        utils.save_stargazers(db, repo_id, stargazers)
+    utils.ensure_db_shape(db)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
 @click.argument("usernames", type=str, nargs=-1)
 @click.option(
     "-a",
