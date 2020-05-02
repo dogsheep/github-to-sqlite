@@ -152,6 +152,7 @@ def test_recent_releases_view(db):
     rows = list(db["recent_releases"].rows)
     assert [
         {
+            "rowid": 207052882,
             "repo": "https://github.com/dogsheep/github-to-sqlite",
             "release": "https://github.com/dogsheep/github-to-sqlite/releases/tag/0.5",
             "date": "2019-10-13",
@@ -160,6 +161,7 @@ def test_recent_releases_view(db):
             "topics": "[]",
         },
         {
+            "rowid": 207052882,
             "repo": "https://github.com/dogsheep/github-to-sqlite",
             "release": "https://github.com/dogsheep/github-to-sqlite/releases/tag/0.4",
             "date": "2019-09-17",
@@ -168,6 +170,7 @@ def test_recent_releases_view(db):
             "topics": "[]",
         },
         {
+            "rowid": 207052882,
             "repo": "https://github.com/dogsheep/github-to-sqlite",
             "release": "https://github.com/dogsheep/github-to-sqlite/releases/tag/0.3",
             "date": "2019-09-14",
@@ -176,6 +179,7 @@ def test_recent_releases_view(db):
             "topics": "[]",
         },
         {
+            "rowid": 207052882,
             "repo": "https://github.com/dogsheep/github-to-sqlite",
             "release": "https://github.com/dogsheep/github-to-sqlite/releases/tag/0.2",
             "date": "2019-09-14",
@@ -184,6 +188,7 @@ def test_recent_releases_view(db):
             "topics": "[]",
         },
         {
+            "rowid": 207052882,
             "repo": "https://github.com/dogsheep/github-to-sqlite",
             "release": "https://github.com/dogsheep/github-to-sqlite/releases/tag/0.1.1",
             "date": "2019-09-14",

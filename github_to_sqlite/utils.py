@@ -49,6 +49,7 @@ order by
     "recent_releases": (
         {"repos", "releases"},
         """select
+  repos.rowid as rowid,
   repos.html_url as repo,
   releases.html_url as release,
   substr(releases.published_at, 0, 11) as date,
