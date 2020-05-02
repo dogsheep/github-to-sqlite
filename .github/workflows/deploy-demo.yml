@@ -93,4 +93,5 @@ jobs:
             --install=datasette-search-all \
             --install=datasette-render-markdown>=1.1.2 \
             --install=datasette-pretty-json \
-            --install=datasette-json-html
+            --install=datasette-json-html \
+            --install=datasette-vega
