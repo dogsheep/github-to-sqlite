@@ -1,0 +1,48 @@
+[
+    {
+        "starred_at": "2019-09-08T05:00:56Z",
+        "user": {
+            "login": "sv0",
+            "id": 233977,
+            "node_id": "MDQ6VXNlcjIzMzk3Nw==",
+            "avatar_url": "https://avatars3.githubusercontent.com/u/233977?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/sv0",
+            "html_url": "https://github.com/sv0",
+            "followers_url": "https://api.github.com/users/sv0/followers",
+            "following_url": "https://api.github.com/users/sv0/following{/other_user}",
+            "gists_url": "https://api.github.com/users/sv0/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/sv0/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/sv0/subscriptions",
+            "organizations_url": "https://api.github.com/users/sv0/orgs",
+            "repos_url": "https://api.github.com/users/sv0/repos",
+            "events_url": "https://api.github.com/users/sv0/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/sv0/received_events",
+            "type": "User",
+            "site_admin": false
+        }
+    },
+    {
+        "starred_at": "2019-09-08T10:29:28Z",
+        "user": {
+            "login": "jianfenkezhan",
+            "id": 6964781,
+            "node_id": "MDQ6VXNlcjY5NjQ3ODE=",
+            "avatar_url": "https://avatars1.githubusercontent.com/u/6964781?v=4",
+            "gravatar_id": "",
+            "url": "https://api.github.com/users/jianfenkezhan",
+            "html_url": "https://github.com/jianfenkezhan",
+            "followers_url": "https://api.github.com/users/jianfenkezhan/followers",
+            "following_url": "https://api.github.com/users/jianfenkezhan/following{/other_user}",
+            "gists_url": "https://api.github.com/users/jianfenkezhan/gists{/gist_id}",
+            "starred_url": "https://api.github.com/users/jianfenkezhan/starred{/owner}{/repo}",
+            "subscriptions_url": "https://api.github.com/users/jianfenkezhan/subscriptions",
+            "organizations_url": "https://api.github.com/users/jianfenkezhan/orgs",
+            "repos_url": "https://api.github.com/users/jianfenkezhan/repos",
+            "events_url": "https://api.github.com/users/jianfenkezhan/events{/privacy}",
+            "received_events_url": "https://api.github.com/users/jianfenkezhan/received_events",
+            "type": "User",
+            "site_admin": false
+        }
+    }
+]
