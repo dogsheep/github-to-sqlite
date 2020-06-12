@@ -28,9 +28,10 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
+        pip install sqlite-utils>=2.10
+        sqlite-utils --version
         pip install -e .
         pip install datasette
-        pip install sqlite-utils>=2.10
         pip install bs4
     - name: Create auth.json
       env:
