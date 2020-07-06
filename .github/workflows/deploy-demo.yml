@@ -90,11 +90,10 @@ jobs:
         gcloud config set run/region us-central1
         gcloud config set project datasette-222320
         datasette publish cloudrun github.db \
-            --memory 2Gi \
             -m demo-metadata.json \
             --service github-to-sqlite \
             --install=py-gfm \
-            --install=datasette-search-all \
+            --install=datasette-search-all>=0.3 \
             --install=datasette-render-markdown>=1.1.2 \
             --install=datasette-pretty-json \
             --install=datasette-json-html \
