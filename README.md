@@ -91,6 +91,12 @@ You can pass more than one username to fetch for multiple users or organizations
 
     $ github-to-sqlite repos github.db simonw dogsheep
 
+## Fetching specific repositories
+
+You can use `-r` with the `repos` command one or more times to fetch just specific repositories.
+
+    $ github-to-sqlite repos github.db -r simonw/datasette -r dogsheep/github-to-sqlite
+
 ## Fetching repos that have been starred by a user
 
 The `starred` command fetches the repos that have been starred by a user.

@@ -173,23 +173,34 @@ def stargazers(db_path, repos, auth):
     help="Path to auth.json token file",
 )
 @click.option(
+    "-r",
+    "--repo",
+    multiple=True,
+    help="Just fetch these repos",
+)
+@click.option(
     "--load",
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
     help="Load issues JSON from this file instead of the API",
 )
-def repos(db_path, usernames, auth, load):
+def repos(db_path, usernames, auth, repo, load):
     "Save repos owened by the specified (or authenticated) username or organization"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
     if load:
-        for repo in json.load(open(load)):
-            utils.save_repo(db, repo)
+        for loaded_repo in json.load(open(load)):
+            utils.save_repo(db, loaded_repo)
     else:
-        if not usernames:
-            usernames = [None]
-        for username in usernames:
-            for repo in utils.fetch_all_repos(username, token):
-                utils.save_repo(db, repo)
+        if repo:
+            # Just these repos
+            for full_name in repo:
+                utils.save_repo(db, utils.fetch_repo(full_name, token))
+        else:
+            if not usernames:
+                usernames = [None]
+            for username in usernames:
+                for repo in utils.fetch_all_repos(username, token):
+                    utils.save_repo(db, repo)
     utils.ensure_db_shape(db)
 
 
