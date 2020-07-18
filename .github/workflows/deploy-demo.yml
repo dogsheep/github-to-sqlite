@@ -58,6 +58,9 @@ jobs:
                 github-to-sqlite commits \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
+                github-to-sqlite tags \
+                    github.db $(echo $repo | tr -d '\r');
+                sleep 2;
                 github-to-sqlite contributors \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
