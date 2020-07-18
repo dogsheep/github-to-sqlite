@@ -27,9 +27,7 @@ def db(tags, repo):
 def test_tables(db):
     assert {"users", "tags", "licenses", "repos"} == set(db.table_names())
     assert {
-        ForeignKey(
-            table="tags", column="repo_id", other_table="repos", other_column="id"
-        )
+        ForeignKey(table="tags", column="repo", other_table="repos", other_column="id")
     } == set(db["tags"].foreign_keys)
 
 
@@ -37,12 +35,12 @@ def test_tags(db):
     tags_rows = list(db["tags"].rows)
     assert [
         {
-            "repo_id": 207052882,
+            "repo": 207052882,
             "name": "2.3",
             "sha": "7090e43d804724ef3b31ae5ca9efd6ac05f76cbc",
         },
         {
-            "repo_id": 207052882,
+            "repo": 207052882,
             "name": "2.2",
             "sha": "4fe69783b55465e7692a807d3a02a710f69c9c42",
         },

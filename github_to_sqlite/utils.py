@@ -468,14 +468,14 @@ def save_contributors(db, contributors, repo_id):
 def save_tags(db, tags, repo_id):
     if not db["tags"].exists():
         db["tags"].create(
-            {"repo_id": int, "name": str, "sha": str,},
-            pk=("repo_id", "name"),
-            foreign_keys=[("repo_id", "repos", "id")],
+            {"repo": int, "name": str, "sha": str,},
+            pk=("repo", "name"),
+            foreign_keys=[("repo", "repos", "id")],
         )
 
     db["tags"].insert_all(
         (
-            {"repo_id": repo_id, "name": tag["name"], "sha": tag["commit"]["sha"],}
+            {"repo": repo_id, "name": tag["name"], "sha": tag["commit"]["sha"],}
             for tag in tags
         ),
         replace=True,
