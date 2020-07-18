@@ -1,0 +1,22 @@
+[
+  {
+    "name": "2.3",
+    "zipball_url": "https://api.github.com/repos/dogsheep/github-to-sqlite/zipball/2.3",
+    "tarball_url": "https://api.github.com/repos/dogsheep/github-to-sqlite/tarball/2.3",
+    "commit": {
+      "sha": "7090e43d804724ef3b31ae5ca9efd6ac05f76cbc",
+      "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/commits/7090e43d804724ef3b31ae5ca9efd6ac05f76cbc"
+    },
+    "node_id": "MDM6UmVmMjA3MDUyODgyOnJlZnMvdGFncy8yLjM="
+  },
+  {
+    "name": "2.2",
+    "zipball_url": "https://api.github.com/repos/dogsheep/github-to-sqlite/zipball/2.2",
+    "tarball_url": "https://api.github.com/repos/dogsheep/github-to-sqlite/tarball/2.2",
+    "commit": {
+      "sha": "4fe69783b55465e7692a807d3a02a710f69c9c42",
+      "url": "https://api.github.com/repos/dogsheep/github-to-sqlite/commits/4fe69783b55465e7692a807d3a02a710f69c9c42"
+    },
+    "node_id": "MDM6UmVmMjA3MDUyODgyOnJlZnMvdGFncy8yLjI="
+  }
+]

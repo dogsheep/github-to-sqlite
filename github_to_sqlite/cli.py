@@ -173,10 +173,7 @@ def stargazers(db_path, repos, auth):
     help="Path to auth.json token file",
 )
 @click.option(
-    "-r",
-    "--repo",
-    multiple=True,
-    help="Just fetch these repos",
+    "-r", "--repo", multiple=True, help="Just fetch these repos",
 )
 @click.option(
     "--load",
@@ -222,12 +219,45 @@ def releases(db_path, repos, auth):
     "Save releases for the specified repos"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
+    first = True
     for repo in repos:
+        if not first:
+            time.sleep(1)
+        first = False
         repo_full = utils.fetch_repo(repo, token)
         utils.save_repo(db, repo_full)
         releases = utils.fetch_releases(repo, token)
         utils.save_releases(db, releases, repo_full["id"])
-        time.sleep(1)
+    utils.ensure_db_shape(db)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("repos", type=str, nargs=-1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def tags(db_path, repos, auth):
+    "Save tags for the specified repos"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    first = True
+    for repo in repos:
+        if not first:
+            time.sleep(1)
+        first = False
+        repo_full = utils.fetch_repo(repo, token)
+        utils.save_repo(db, repo_full)
+        tags = utils.fetch_tags(repo, token)
+        utils.save_tags(db, tags, repo_full["id"])
     utils.ensure_db_shape(db)
 
 

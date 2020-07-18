@@ -66,6 +66,12 @@ The command accepts one or more repositories.
 
 By default it will stop as soon as it sees a commit that has previously been retrieved. You can force it to retrieve all commits (including those that have been previously inserted) using `--all`.
 
+## Fetching tags for a repository
+
+The `tags` command retrieves all of the tags for one or more repositories.
+
+    $ github-to-sqlite tags github.db simonw/datasette simonw/sqlite-utils
+
 ## Fetching contributors to a repository
 
 The `contributors` command retrieves details of all of the contributors for one or more repositories.

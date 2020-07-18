@@ -300,6 +300,13 @@ def fetch_contributors(repo, token=None):
         yield from contributors
 
 
+def fetch_tags(repo, token=None):
+    headers = make_headers(token)
+    url = "https://api.github.com/repos/{}/tags".format(repo)
+    for tags in paginate(url, headers):
+        yield from tags
+
+
 def fetch_commits(repo, token=None, stop_when=None):
     if stop_when is None:
         stop_when = lambda commit: False
@@ -454,6 +461,23 @@ def save_contributors(db, contributors, repo_id):
         contributor_rows_to_add,
         pk=("repo_id", "user_id"),
         foreign_keys=[("repo_id", "repos", "id"), ("user_id", "users", "id")],
+        replace=True,
+    )
+
+
+def save_tags(db, tags, repo_id):
+    if not db["tags"].exists():
+        db["tags"].create(
+            {"repo_id": int, "name": str, "sha": str,},
+            pk=("repo_id", "name"),
+            foreign_keys=[("repo_id", "repos", "id")],
+        )
+
+    db["tags"].insert_all(
+        (
+            {"repo_id": repo_id, "name": tag["name"], "sha": tag["commit"]["sha"],}
+            for tag in tags
+        ),
         replace=True,
     )
 
