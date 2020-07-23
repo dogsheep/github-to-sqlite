@@ -8,6 +8,21 @@
 Save data from GitHub to a SQLite database.
 
 <!-- toc -->
+
+- [Demo](#demo)
+- [How to install](#how-to-install)
+- [Authentication](#authentication)
+- [Fetching issues for a repository](#fetching-issues-for-a-repository)
+- [Fetching issue comments for a repository](#fetching-issue-comments-for-a-repository)
+- [Fetching commits for a repository](#fetching-commits-for-a-repository)
+- [Fetching tags for a repository](#fetching-tags-for-a-repository)
+- [Fetching contributors to a repository](#fetching-contributors-to-a-repository)
+- [Fetching repos belonging to a user or organization](#fetching-repos-belonging-to-a-user-or-organization)
+- [Fetching specific repositories](#fetching-specific-repositories)
+- [Fetching repos that have been starred by a user](#fetching-repos-that-have-been-starred-by-a-user)
+- [Fetching users that have starred specific repos](#fetching-users-that-have-starred-specific-repos)
+- [Scraping dependents for a repository](#scraping-dependents-for-a-repository)
+
 <!-- tocstop -->
 
 ## Demo
