@@ -22,6 +22,7 @@ Save data from GitHub to a SQLite database.
 - [Fetching repos that have been starred by a user](#fetching-repos-that-have-been-starred-by-a-user)
 - [Fetching users that have starred specific repos](#fetching-users-that-have-starred-specific-repos)
 - [Scraping dependents for a repository](#scraping-dependents-for-a-repository)
+- [Fetching emojis](#fetching-emojis)
 
 <!-- tocstop -->
 
