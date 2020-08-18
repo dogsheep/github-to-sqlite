@@ -6,6 +6,7 @@ FTS_CONFIG = {
     "commits": ["message"],
     "issue_comments": ["body"],
     "issues": ["title", "body"],
+    "pull_requests": ["title", "body"],
     "labels": ["name", "description"],
     "licenses": ["name"],
     "milestones": ["title", "description"],
@@ -124,6 +125,70 @@ def save_issues(db, issues, repo):
         # Insert record
         table = db["issues"].insert(
             issue,
+            pk="id",
+            foreign_keys=[
+                ("user", "users", "id"),
+                ("assignee", "users", "id"),
+                ("milestone", "milestones", "id"),
+                ("repo", "repos", "id"),
+            ],
+            alter=True,
+            replace=True,
+            columns={
+                "user": int,
+                "assignee": int,
+                "milestone": int,
+                "repo": int,
+                "title": str,
+                "body": str,
+            },
+        )
+        # m2m for labels
+        for label in labels:
+            table.m2m("labels", label, pk="id")
+
+
+def save_pull_requests(db, pull_requests, repo):
+    if "milestones" not in db.table_names():
+        if "users" not in db.table_names():
+            # So we can define the foreign key from milestones:
+            db["users"].create({"id": int}, pk="id")
+        db["milestones"].create(
+            {"id": int, "title": str, "description": str, "creator": int, "repo": int},
+            pk="id",
+            foreign_keys=(("repo", "repos", "id"), ("creator", "users", "id")),
+        )
+    for original in pull_requests:
+        # Ignore all of the _url fields
+        pull_request = {
+            key: value for key, value in original.items() if not key.endswith("url")
+        }
+        # Add repo key
+        pull_request["repo"] = repo["id"]
+        # Pull request _links can be flattened to just their URL
+        pull_request["url"] = pull_request["_links"]["html"]["href"]
+        pull_request.pop("_links")
+        # Extract user
+        pull_request["user"] = save_user(db, pull_request["user"])
+        labels = pull_request.pop("labels")
+        # Head sha
+        pull_request["head"] = pull_request["head"]["sha"]
+        pull_request["base"] = pull_request["base"]["sha"]
+        # Extract milestone
+        if pull_request["milestone"]:
+            pull_request["milestone"] = save_milestone(db, pull_request["milestone"], repo["id"])
+        # For the moment we ignore the assignees=[] array but we DO turn assignee
+        # singular into a foreign key reference
+        pull_request.pop("assignees", None)
+        if original["assignee"]:
+            pull_request["assignee"] = save_user(db, pull_request["assignee"])
+        pull_request.pop("active_lock_reason")
+        # ignore requested_reviewers and requested_teams
+        pull_request.pop("requested_reviewers", None)
+        pull_request.pop("requested_teams", None)
+        # Insert record
+        table = db["pull_requests"].insert(
+            pull_request,
             pk="id",
             foreign_keys=[
                 ("user", "users", "id"),
@@ -271,6 +336,16 @@ def fetch_issues(repo, token=None, issue=None):
         url = "https://api.github.com/repos/{}/issues?state=all&filter=all".format(repo)
         for issues in paginate(url, headers):
             yield from issues
+
+def fetch_pull_requests(repo, token=None, pull_request=None):
+    headers = make_headers(token)
+    if pull_request is not None:
+        url = "https://api.github.com/repos/{}/pulls/{}".format(repo, pull_request)
+        yield from [requests.get(url).json()]
+    else:
+        url = "https://api.github.com/repos/{}/pulls?state=all&filter=all".format(repo)
+        for pull_requests in paginate(url, headers):
+            yield from pull_requests
 
 
 def fetch_issue_comments(repo, token=None, issue=None):
