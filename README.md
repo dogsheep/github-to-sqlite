@@ -2,7 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/github-to-sqlite.svg)](https://pypi.org/project/github-to-sqlite/)
 [![Changelog](https://img.shields.io/github/v/release/dogsheep/github-to-sqlite?include_prereleases&label=changelog)](https://github.com/dogsheep/github-to-sqlite/releases)
-[![CircleCI](https://circleci.com/gh/dogsheep/github-to-sqlite.svg?style=svg)](https://circleci.com/gh/dogsheep/github-to-sqlite)
+[![Tests](https://github.com/dogsheep/github-to-sqlite/workflows/Test/badge.svg)](https://github.com/dogsheep/github-to-sqlite/actions?query=workflow%3ATest)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/dogsheep/github-to-sqlite/blob/main/LICENSE)
 
 Save data from GitHub to a SQLite database.
