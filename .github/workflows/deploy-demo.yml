@@ -79,6 +79,8 @@ jobs:
         sqlite-utils tables --counts github.db
         # Delete email addresses from raw_authors
         sqlite-utils github.db "update raw_authors set email = ''"
+        # Fetch emojis
+        github-to-sqlite emojis github.db --fetch
     - uses: actions/upload-artifact@v2
       with:
         path: github.db

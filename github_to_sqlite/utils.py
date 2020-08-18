@@ -611,3 +611,14 @@ def scrape_dependents(repo, verbose=False):
             time.sleep(1)
         else:
             url = None
+
+
+def fetch_emojis(token=None):
+    headers = make_headers(token)
+    response = requests.get("https://api.github.com/emojis", headers=headers)
+    response.raise_for_status()
+    return [{"name": key, "url": value} for key, value in response.json().items()]
+
+
+def fetch_image(url):
+    return requests.get(url).content

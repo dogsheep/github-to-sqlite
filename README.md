@@ -150,3 +150,18 @@ This data is not yet available through the GitHub API. The `scrape-dependents` c
 The command accepts one or more repositories.
 
 Add `-v` for verbose output.
+
+## Fetching emojis
+
+You can fetch a list of every emoji supported by GitHub using the `emojis` command:
+
+    $ github-to-sqlite emojis github.db
+
+This will create a table callad `emojis` with a primary key `name` and a `url` column.
+
+If you add the `--fetch` option the command will also fetch the binary content of the images and place them in an `image` column:
+
+    $ github-to-sqlite emojis emojis.db -f
+    [########----------------------------]  397/1799   22%  00:03:43
+
+You can then use the [datasette-render-images](https://github.com/simonw/datasette-render-images) plugin to browse them visually.

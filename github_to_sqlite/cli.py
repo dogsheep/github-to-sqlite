@@ -397,6 +397,42 @@ def scrape_dependents(db_path, repos, auth, verbose):
     utils.ensure_db_shape(db)
 
 
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "-f", "--fetch", is_flag=True, help="Fetch the image data into a BLOB column",
+)
+def emojis(db_path, auth, fetch):
+    "Fetch GitHub supported emojis"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    table = db.table("emojis", pk="name")
+    table.upsert_all(utils.fetch_emojis(token))
+    if fetch:
+        # Ensure table has 'image' column
+        if "image" not in table.columns_dict:
+            table.add_column("image", bytes)
+        with click.progressbar(
+            list(table.rows_where("image is null")),
+            show_pos=True,
+            show_eta=True,
+            show_percent=True,
+        ) as bar:
+            for emoji in bar:
+                table.update(emoji["name"], {"image": utils.fetch_image(emoji["url"])})
+
+
 def load_token(auth):
     try:
         token = json.load(open(auth))["github_personal_token"]
