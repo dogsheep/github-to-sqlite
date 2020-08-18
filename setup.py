@@ -1,7 +1,7 @@
 from setuptools import setup
 import os
 
-VERSION = "2.4"
+VERSION = "2.5"
 
 
 def get_long_description():
