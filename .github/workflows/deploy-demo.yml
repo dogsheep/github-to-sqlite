@@ -102,4 +102,6 @@ jobs:
             --install=datasette-render-markdown>=1.1.2 \
             --install=datasette-pretty-json \
             --install=datasette-json-html \
-            --install=datasette-vega
+            --install=datasette-vega \
+            --install=datasette-render-images \
+            --install=datasette-graphql
