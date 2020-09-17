@@ -16,6 +16,9 @@ def mocked_paginated(requests_mock):
         json=[{"id": 3, "title": "Item 3"}, {"id": 4, "title": "Item 4"}],
         headers={"link": '<https://api.github.com/paginated>; rel="prev"'},
     )
+    requests_mock.get(
+        "https://api.github.com/single", json={"id": 1, "title": "Item 1"}
+    )
 
 
 @pytest.mark.parametrize("url", ["https://api.github.com/paginated", "/paginated"])
@@ -39,6 +42,37 @@ def test_get(mocked_paginated, url):
         """
         ).strip()
         assert result.output.strip() == expected
+
+
+@pytest.mark.parametrize(
+    "nl,expected",
+    [
+        (True, '{"id": 1, "title": "Item 1"}'),
+        (
+            False,
+            textwrap.dedent(
+                """
+                {
+                    "id": 1,
+                    "title": "Item 1"
+                }
+            """
+            ),
+        ),
+    ],
+)
+@pytest.mark.parametrize("paginate", [True, False])
+def test_get_single(mocked_paginated, nl, expected, paginate):
+    runner = CliRunner()
+    with runner.isolated_filesystem():
+        args = ["get", "/single"]
+        if nl:
+            args.append("--nl")
+        if paginate:
+            args.append("--paginate")
+        result = runner.invoke(cli.cli, args)
+        assert 0 == result.exit_code
+        assert result.output.strip() == expected.strip()
 
 
 @pytest.mark.parametrize(

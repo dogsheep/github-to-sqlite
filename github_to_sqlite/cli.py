@@ -466,9 +466,17 @@ def get(url, auth, paginate, nl):
     "Save repos owened by the specified (or authenticated) username or organization"
     token = load_token(auth)
     first = True
+    should_output_closing_brace = not nl
     while url:
         response = utils.get(url, token)
         items = response.json()
+        if isinstance(items, dict):
+            if nl:
+                click.echo(json.dumps(items))
+            else:
+                click.echo(json.dumps(items, indent=4))
+            should_output_closing_brace = False
+            break
         if first and not nl:
             click.echo("[")
         for item in items:
@@ -484,7 +492,7 @@ def get(url, auth, paginate, nl):
             url = response.links.get("next", {}).get("url")
         else:
             url = None
-    if not nl:
+    if should_output_closing_brace:
         click.echo("\n]")
 
 
