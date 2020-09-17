@@ -649,3 +649,12 @@ def fetch_emojis(token=None):
 
 def fetch_image(url):
     return requests.get(url).content
+
+
+def get(url, token=None):
+    headers = make_headers(token)
+    if url.startswith("/"):
+        url = "https://api.github.com{}".format(url)
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response

@@ -1,6 +1,7 @@
 import click
 import datetime
 import pathlib
+import textwrap
 import os
 import sqlite_utils
 import time
@@ -440,6 +441,52 @@ def emojis(db_path, auth, fetch):
         ) as bar:
             for emoji in bar:
                 table.update(emoji["name"], {"image": utils.fetch_image(emoji["url"])})
+
+
+@cli.command()
+@click.argument("url", type=str)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--paginate",
+    is_flag=True,
+    help="Paginate through all results",
+)
+@click.option(
+    "--nl",
+    is_flag=True,
+    help="Output newline-delimited JSON",
+)
+def get(url, auth, paginate, nl):
+    "Save repos owened by the specified (or authenticated) username or organization"
+    token = load_token(auth)
+    if paginate or nl:
+        first = True
+        while url:
+            response = utils.get(url, token)
+            items = response.json()
+            if first and not nl:
+                click.echo("[")
+            for item in items:
+                if not first and not nl:
+                    click.echo(",")
+                first = False
+                if not nl:
+                    to_dump = json.dumps(item, indent=4)
+                    click.echo(textwrap.indent(to_dump, "    "), nl=False)
+                else:
+                    click.echo(json.dumps(item))
+            url = response.links.get("next", {}).get("url")
+        if not nl:
+            click.echo("\n]")
+    else:
+        response = utils.get(url, token)
+        click.echo(json.dumps(response.json(), indent=4))
 
 
 def load_token(auth):

@@ -166,3 +166,23 @@ If you add the `--fetch` option the command will also fetch the binary content o
     [########----------------------------]  397/1799   22%  00:03:43
 
 You can then use the [datasette-render-images](https://github.com/simonw/datasette-render-images) plugin to browse them visually.
+
+## Making authenticated API calls
+
+The `github-to-sqlite get` command provides a convenient shortcut for making authenticated calls to the API. Once you have created your `auth.json` file (or set a `GITHUB_TOKEN` environment variable) you can use it like this:
+
+    $ github-to-sqlite get https://api.github.com/gists
+
+This will make an authenticated call to the URL you provide and pretty-print the resulting JSON to the console.
+
+You can ommit the `https://api.github.com/` prefix, for example:
+
+    $ github-to-sqlite get /gists
+
+Many GitHub APIs are [paginated using the HTTP Link header](https://docs.github.com/en/rest/guides/traversing-with-pagination). You can follow this pagination and output a list of all of the resulting items using `--paginate`:
+
+    $ github-to-sqlite get /users/simonw/repos --paginate
+
+You can outline newline-delimited JSON for each item using `--nl`. This can be useful for streaming items into another tool.
+
+    $ github-to-sqlite get /users/simonw/repos --nl
