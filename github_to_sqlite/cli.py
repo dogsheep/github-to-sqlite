@@ -173,7 +173,10 @@ def stargazers(db_path, repos, auth):
     help="Path to auth.json token file",
 )
 @click.option(
-    "-r", "--repo", multiple=True, help="Just fetch these repos",
+    "-r",
+    "--repo",
+    multiple=True,
+    help="Just fetch these repos",
 )
 @click.option(
     "--load",
@@ -349,7 +352,10 @@ def commits(db_path, repos, all, auth):
     help="Path to auth.json token file",
 )
 @click.option(
-    "-v", "--verbose", is_flag=True, help="Verbose output",
+    "-v",
+    "--verbose",
+    is_flag=True,
+    help="Verbose output",
 )
 def scrape_dependents(db_path, repos, auth, verbose):
     "Scrape dependents for specified repos"
@@ -411,7 +417,10 @@ def scrape_dependents(db_path, repos, auth, verbose):
     help="Path to auth.json token file",
 )
 @click.option(
-    "-f", "--fetch", is_flag=True, help="Fetch the image data into a BLOB column",
+    "-f",
+    "--fetch",
+    is_flag=True,
+    help="Fetch the image data into a BLOB column",
 )
 def emojis(db_path, auth, fetch):
     "Fetch GitHub supported emojis"

@@ -444,7 +444,10 @@ def save_releases(db, releases, repo_id=None):
         db["assets"].upsert_all(
             assets,
             pk="id",
-            foreign_keys=[("uploader", "users", "id"), ("release", "releases", "id"),],
+            foreign_keys=[
+                ("uploader", "users", "id"),
+                ("release", "releases", "id"),
+            ],
             alter=True,
         )
 
@@ -468,14 +471,22 @@ def save_contributors(db, contributors, repo_id):
 def save_tags(db, tags, repo_id):
     if not db["tags"].exists():
         db["tags"].create(
-            {"repo": int, "name": str, "sha": str,},
+            {
+                "repo": int,
+                "name": str,
+                "sha": str,
+            },
             pk=("repo", "name"),
             foreign_keys=[("repo", "repos", "id")],
         )
 
     db["tags"].insert_all(
         (
-            {"repo": repo_id, "name": tag["name"], "sha": tag["commit"]["sha"],}
+            {
+                "repo": repo_id,
+                "name": tag["name"],
+                "sha": tag["commit"]["sha"],
+            }
             for tag in tags
         ),
         replace=True,
@@ -492,7 +503,14 @@ def save_commits(db, commits, repo_id=None):
     ]
 
     if not db["raw_authors"].exists():
-        db["raw_authors"].create({"id": str, "name": str, "email": str,}, pk="id")
+        db["raw_authors"].create(
+            {
+                "id": str,
+                "name": str,
+                "email": str,
+            },
+            pk="id",
+        )
 
     if not db["commits"].exists():
         # We explicitly create the table because otherwise we may create it
@@ -530,7 +548,9 @@ def save_commits(db, commits, repo_id=None):
             save_user(db, commit["committer"]) if commit["committer"] else None
         )
         db["commits"].insert(
-            commit_to_insert, alter=True, replace=True,
+            commit_to_insert,
+            alter=True,
+            replace=True,
         )
 
 
@@ -539,7 +559,14 @@ def save_commit_author(db, raw_author):
     email = raw_author.get("email")
     return (
         db["raw_authors"]
-        .insert({"name": name, "email": email,}, hash_id="id", replace=True)
+        .insert(
+            {
+                "name": name,
+                "email": email,
+            },
+            hash_id="id",
+            replace=True,
+        )
         .last_pk
     )
 
