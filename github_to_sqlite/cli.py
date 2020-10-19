@@ -182,9 +182,19 @@ def stargazers(db_path, repos, auth):
 @click.option(
     "--load",
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
-    help="Load issues JSON from this file instead of the API",
+    help="Load repos JSON from this file instead of the API",
 )
-def repos(db_path, usernames, auth, repo, load):
+@click.option(
+    "--readme",
+    is_flag=True,
+    help="Fetch README into 'readme' column",
+)
+@click.option(
+    "--readme-html",
+    is_flag=True,
+    help="Fetch HTML rendered README into 'readme_html' column",
+)
+def repos(db_path, usernames, auth, repo, load, readme, readme_html):
     "Save repos owened by the specified (or authenticated) username or organization"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
@@ -195,14 +205,27 @@ def repos(db_path, usernames, auth, repo, load):
         if repo:
             # Just these repos
             for full_name in repo:
-                utils.save_repo(db, utils.fetch_repo(full_name, token))
+                repo_id = utils.save_repo(db, utils.fetch_repo(full_name, token))
+                _repo_readme(db, token, repo_id, full_name, readme, readme_html)
         else:
             if not usernames:
                 usernames = [None]
             for username in usernames:
                 for repo in utils.fetch_all_repos(username, token):
-                    utils.save_repo(db, repo)
+                    repo_id = utils.save_repo(db, repo)
+                    _repo_readme(
+                        db, token, repo_id, repo["full_name"], readme, readme_html
+                    )
     utils.ensure_db_shape(db)
+
+
+def _repo_readme(db, token, repo_id, full_name, readme, readme_html):
+    if readme:
+        readme = utils.fetch_readme(token, full_name)
+        db["repos"].update(repo_id, {"readme": readme}, alter=True)
+    if readme_html:
+        readme_html = utils.fetch_readme(token, full_name, html=True)
+        db["repos"].update(repo_id, {"readme_html": readme_html}, alter=True)
 
 
 @cli.command()

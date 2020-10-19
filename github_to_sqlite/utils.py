@@ -1,3 +1,4 @@
+import base64
 import requests
 import time
 
@@ -660,3 +661,16 @@ def get(url, token=None, accept=None):
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     return response
+
+
+def fetch_readme(token, full_name, html=False):
+    headers = make_headers(token)
+    if html:
+        headers["accept"] = "application/vnd.github.VERSION.html"
+    url = "https://api.github.com/repos/{}/readme".format(full_name)
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    if html:
+        return response.text
+    else:
+        return base64.b64decode(response.json()["content"]).decode("utf-8")
