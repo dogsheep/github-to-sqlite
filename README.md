@@ -117,6 +117,8 @@ You can pass more than one username to fetch for multiple users or organizations
 
     $ github-to-sqlite repos github.db simonw dogsheep
 
+Add the `--readme` option to save the README for the repo in a column called `readme`. Add `--readme-html` to save the HTML rendered version of the README into a collumn called `readme_html`.
+
 ## Fetching specific repositories
 
 You can use `-r` with the `repos` command one or more times to fetch just specific repositories.
