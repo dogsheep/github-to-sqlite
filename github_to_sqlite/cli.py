@@ -462,13 +462,20 @@ def emojis(db_path, auth, fetch):
     is_flag=True,
     help="Output newline-delimited JSON",
 )
-def get(url, auth, paginate, nl):
+@click.option(
+    "--accept",
+    help="Accept header to send, e.g. application/vnd.github.VERSION.html",
+)
+def get(url, auth, paginate, nl, accept):
     "Save repos owened by the specified (or authenticated) username or organization"
     token = load_token(auth)
     first = True
     should_output_closing_brace = not nl
     while url:
-        response = utils.get(url, token)
+        response = utils.get(url, token, accept=accept)
+        if "html" in (response.headers.get("content-type") or ""):
+            click.echo(response.text)
+            return
         items = response.json()
         if isinstance(items, dict):
             if nl:

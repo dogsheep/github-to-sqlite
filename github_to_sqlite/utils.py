@@ -651,8 +651,10 @@ def fetch_image(url):
     return requests.get(url).content
 
 
-def get(url, token=None):
+def get(url, token=None, accept=None):
     headers = make_headers(token)
+    if accept:
+        headers["accept"] = accept
     if url.startswith("/"):
         url = "https://api.github.com{}".format(url)
     response = requests.get(url, headers=headers)
