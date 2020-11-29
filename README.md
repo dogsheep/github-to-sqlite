@@ -13,6 +13,7 @@ Save data from GitHub to a SQLite database.
 - [How to install](#how-to-install)
 - [Authentication](#authentication)
 - [Fetching issues for a repository](#fetching-issues-for-a-repository)
+- [Fetching pull requests for a repository](#fetching-pull-requests-for-a-repository)
 - [Fetching issue comments for a repository](#fetching-issue-comments-for-a-repository)
 - [Fetching commits for a repository](#fetching-commits-for-a-repository)
 - [Fetching tags for a repository](#fetching-tags-for-a-repository)
@@ -63,6 +64,18 @@ You can point to a different location of `auth.json` using `-a`:
 You can use the `--issue` option to only load just one specific issue:
 
     $ github-to-sqlite issues github.db simonw/datasette --issue=1
+
+## Fetching pull-requests for a repository
+
+While pull-requests are a type of issue, you will get more information on pull-requests by pulling them separately. For example, whether a pull-request has been merged and when.
+
+Following the API of issues, the `pull-requests` command retrieves all of the pull-requests belonging to a specified repository.
+
+    $ github-to-sqlite pull-requests github.db simonw/datasette
+
+You can use the `--pull-request` option to only load just one specific pull-request:
+
+    $ github-to-sqlite pull-requests github.db simonw/datasette --pull-request=81
 
 ## Fetching issue comments for a repository
 

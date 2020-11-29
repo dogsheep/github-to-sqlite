@@ -70,6 +70,40 @@ def issues(db_path, repo, issue, auth, load):
     utils.save_issues(db, issues, repo_full)
     utils.ensure_db_shape(db)
 
+@cli.command(name="pull-requests")
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("repo", required=False)
+@click.option("--pull-request", help="Just pull this pull-request number")
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--load",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    help="Load pull-requests JSON from this file instead of the API",
+)
+def pull_requests(db_path, repo, pull_request, auth, load):
+    "Save pull_requests for a specified repository, e.g. simonw/datasette"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    repo_full = utils.fetch_repo(repo, token)
+    if load:
+        pull_requests = json.load(open(load))
+    else:
+        pull_requests = utils.fetch_pull_requests(repo, token, pull_request)
+
+    pull_requests = list(pull_requests)
+    utils.save_pull_requests(db, pull_requests, repo_full)
+    utils.ensure_db_shape(db)
+
 
 @cli.command(name="issue-comments")
 @click.argument(
