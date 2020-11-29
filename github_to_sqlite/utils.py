@@ -697,7 +697,18 @@ def save_workflow(db, repo_id, filename, content):
     # If there's a `True` key it was probably meant to be "on" - grr YAML
     if True in workflow:
         workflow["on"] = workflow.pop(True)
-    # TODO: Replace workflow (and delete steps/jobs) if it exists already
+    # Replace workflow if one exists already
+    existing = list(
+        db["workflows"].rows_where("repo = ? and filename = ?", [repo_id, filename])
+    )
+    if existing:
+        # Delete jobs, steps and this record
+        existing_id = existing[0]["id"]
+        db["steps"].delete_where(
+            "job in (select id from jobs where workflow = ?)", [existing_id]
+        )
+        db["jobs"].delete_where("workflow = ?", [existing_id])
+        db["workflows"].delete_where("id = ?", [existing_id])
     workflow_id = (
         db["workflows"]
         .insert(
@@ -716,6 +727,7 @@ def save_workflow(db, repo_id, filename, content):
         )
         .last_pk
     )
+    db["workflows"].create_index(["repo", "filename"], unique=True, if_not_exists=True)
     for job_name, job_details in jobs.items():
         steps = job_details.pop("steps", None) or []
         job_id = (

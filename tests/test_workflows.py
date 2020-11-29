@@ -4,6 +4,7 @@ import pathlib
 import pytest
 import sqlite_utils
 from sqlite_utils.db import ForeignKey
+import textwrap
 
 
 @pytest.fixture
@@ -23,6 +24,63 @@ def db(workflow_yaml, repo):
     utils.save_workflow(db, repo["id"], "deploy_demo.yml", workflow_yaml)
     utils.ensure_db_shape(db)
     return db
+
+
+def test_replaces_existing_workflows(db, repo):
+    utils.save_workflow(
+        db,
+        repo["id"],
+        "deploy_demo.yml",
+        textwrap.dedent(
+            """
+    name: Build and deploy demo replaced
+
+    on:
+      repository_dispatch:
+
+    jobs:
+      scheduled:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v2
+          name: Check out repo
+    """
+        ),
+    )
+    workflows = list(db["workflows"].rows)
+    jobs = list(db["jobs"].rows)
+    steps = list(db["steps"].rows)
+    assert workflows == [
+        {
+            "id": 1,
+            "filename": "deploy_demo.yml",
+            "name": "Build and deploy demo replaced",
+            "on": '{"repository_dispatch": null}',
+            "repo": 207052882,
+        }
+    ]
+    assert jobs == [
+        {
+            "id": 1,
+            "workflow": 1,
+            "name": "scheduled",
+            "repo": 207052882,
+            "runs-on": "ubuntu-latest",
+        }
+    ]
+    assert steps == [
+        {
+            "id": 1,
+            "seq": 1,
+            "job": 1,
+            "repo": 207052882,
+            "uses": "actions/checkout@v2",
+            "name": "Check out repo",
+            "with": None,
+            "run": None,
+            "env": None,
+        }
+    ]
 
 
 def test_tables(db):
