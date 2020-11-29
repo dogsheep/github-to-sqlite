@@ -526,6 +526,33 @@ def get(url, auth, paginate, nl, accept):
         click.echo("\n]")
 
 
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("repos", type=str, nargs=-1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def workflows(db_path, repos, auth):
+    "Fetch details of GitHub Actions workflows for the specified repositories"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    for repo in repos:
+        full_repo = utils.fetch_repo(repo, token=token)
+        repo_id = utils.save_repo(db, full_repo)
+        workflows = utils.fetch_workflows(token, full_repo["full_name"])
+        for filename, content in workflows.items():
+            utils.save_workflow(db, repo_id, filename, content)
+    utils.ensure_db_shape(db)
+
+
 def load_token(auth):
     try:
         token = json.load(open(auth))["github_personal_token"]

@@ -52,7 +52,7 @@ jobs:
       run: |-
         sqlite-utils github.db "select full_name from repos where owner = 53015001 union select 'simonw/datasette' as full_name union select 'simonw/sqlite-utils' as full_name" \
           --csv --no-headers | while read repo;
-            do  github-to-sqlite releases \
+            do github-to-sqlite releases \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
                 github-to-sqlite commits \
@@ -71,6 +71,9 @@ jobs:
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
                 github-to-sqlite stargazers \
+                    github.db $(echo $repo | tr -d '\r');
+                sleep 2;
+                github-to-sqlite workflows \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
             done;

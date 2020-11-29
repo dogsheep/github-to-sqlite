@@ -143,6 +143,14 @@ You can specify one or more repository using `owner/repo` syntax.
 
 Users fetched using this command will be inserted into the `users` table. Many-to-many records showing which repository they starred will be added to the `stars` table.
 
+## Fetching GitHub Actions workflows
+
+The `workflows` command fetches the YAML workflow configurations from each repository's `.github/workflows` directory and parses them to populate `workflows`, `jobs` and `steps` tables.
+
+    $ github-to-sqlite workflows github.db simonw/datasette dogsheep/github-to-sqlite
+
+You can specify one or more repository using `owner/repo` syntax.
+
 ## Scraping dependents for a repository
 
 The GitHub dependency graph can show other GitHub projects that depend on a specific repo, for example [simonw/datasette/network/dependents](https://github.com/simonw/datasette/network/dependents).

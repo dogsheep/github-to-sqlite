@@ -1,6 +1,7 @@
 import base64
 import requests
 import time
+import yaml
 
 FTS_CONFIG = {
     # table: columns
@@ -674,3 +675,79 @@ def fetch_readme(token, full_name, html=False):
         return response.text
     else:
         return base64.b64decode(response.json()["content"]).decode("utf-8")
+
+
+def fetch_workflows(token, full_name):
+    headers = make_headers(token)
+    url = "https://api.github.com/repos/{}/contents/.github/workflows".format(full_name)
+    response = requests.get(url, headers=headers)
+    if response.status_code == 404:
+        return {}
+    workflows = {}
+    for item in response.json():
+        name = item["name"]
+        content = requests.get(item["download_url"]).text
+        workflows[name] = content
+    return workflows
+
+
+def save_workflow(db, repo_id, filename, content):
+    workflow = yaml.safe_load(content)
+    jobs = workflow.pop("jobs", None) or {}
+    # If there's a `True` key it was probably meant to be "on" - grr YAML
+    if True in workflow:
+        workflow["on"] = workflow.pop(True)
+    # TODO: Replace workflow (and delete steps/jobs) if it exists already
+    workflow_id = (
+        db["workflows"]
+        .insert(
+            {
+                **workflow,
+                **{
+                    "repo": repo_id,
+                    "filename": filename,
+                    "name": workflow.get("name", filename),
+                },
+            },
+            pk="id",
+            column_order=["id", "filename", "name"],
+            alter=True,
+            foreign_keys=["repo"],
+        )
+        .last_pk
+    )
+    for job_name, job_details in jobs.items():
+        steps = job_details.pop("steps", None) or []
+        job_id = (
+            db["jobs"]
+            .insert(
+                {
+                    **{
+                        "workflow": workflow_id,
+                        "name": job_name,
+                        "repo": repo_id,
+                    },
+                    **job_details,
+                },
+                pk="id",
+                alter=True,
+                foreign_keys=["workflow", "repo"],
+            )
+            .last_pk
+        )
+        db["steps"].insert_all(
+            [
+                {
+                    **{
+                        "seq": i + 1,
+                        "job": job_id,
+                        "repo": repo_id,
+                    },
+                    **step,
+                }
+                for i, step in enumerate(steps)
+            ],
+            alter=True,
+            pk="id",
+            foreign_keys=["job", "repo"],
+        )
