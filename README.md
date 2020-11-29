@@ -13,7 +13,7 @@ Save data from GitHub to a SQLite database.
 - [How to install](#how-to-install)
 - [Authentication](#authentication)
 - [Fetching issues for a repository](#fetching-issues-for-a-repository)
-- [Fetching pull requests for a repository](#fetching-pull-requests-for-a-repository)
+- [Fetching pull-requests for a repository](#fetching-pull-requests-for-a-repository)
 - [Fetching issue comments for a repository](#fetching-issue-comments-for-a-repository)
 - [Fetching commits for a repository](#fetching-commits-for-a-repository)
 - [Fetching tags for a repository](#fetching-tags-for-a-repository)
