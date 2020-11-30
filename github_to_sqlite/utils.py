@@ -338,10 +338,11 @@ def save_license(db, license):
 
 def fetch_issues(repo, token=None, issue_ids=None):
     headers = make_headers(token)
-    if issue_ids is not None:
+    headers["accept"] = "application/vnd.github.v3+json"
+    if issue_ids:
         for issue_id in issue_ids:
             url = "https://api.github.com/repos/{}/issues/{}".format(repo, issue_id)
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
             response.raise_for_status()
             yield response.json()
     else:
@@ -352,12 +353,13 @@ def fetch_issues(repo, token=None, issue_ids=None):
 
 def fetch_pull_requests(repo, token=None, pull_request_ids=None):
     headers = make_headers(token)
-    if pull_request_ids is not None:
+    headers["accept"] = "application/vnd.github.v3+json"
+    if pull_request_ids:
         for pull_request_id in pull_request_ids:
             url = "https://api.github.com/repos/{}/pulls/{}".format(
                 repo, pull_request_id
             )
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
             response.raise_for_status()
             yield response.json()
     else:

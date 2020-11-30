@@ -77,6 +77,8 @@ You can use the `--pull-request` option one or more times to load specific pull 
 
     $ github-to-sqlite pull-requests github.db simonw/datasette --pull-request=81
 
+Note that the `merged_by` column on the `pull_requests` table will only be populated for pull requests that are loaded using the `--pull-request` option - the GitHub API does not return this field for pull requests that are loaded in bulk.
+
 ## Fetching issue comments for a repository
 
 The `issue-comments` command retrieves all of the comments on all of the issues in a repository.
