@@ -67,6 +67,9 @@ jobs:
                 github-to-sqlite issues \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
+                github-to-sqlite pull-requests \
+                    github.db $(echo $repo | tr -d '\r');
+                sleep 2;
                 github-to-sqlite issue-comments \
                     github.db $(echo $repo | tr -d '\r');
                 sleep 2;
