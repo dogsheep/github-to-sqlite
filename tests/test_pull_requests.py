@@ -25,14 +25,11 @@ def db(pull_requests):
 
 def test_tables(db):
     assert {"pull_requests", "users", "repos", "milestones"} == set(db.table_names())
-    assert {
-        ForeignKey(
-            table="pull_requests", column="repo", other_table="repos", other_column="id"
-        ),
+    assert set(db["pull_requests"].foreign_keys) == {
         ForeignKey(
             table="pull_requests",
-            column="milestone",
-            other_table="milestones",
+            column="merged_by",
+            other_table="users",
             other_column="id",
         ),
         ForeignKey(
@@ -42,9 +39,18 @@ def test_tables(db):
             other_column="id",
         ),
         ForeignKey(
+            table="pull_requests",
+            column="milestone",
+            other_table="milestones",
+            other_column="id",
+        ),
+        ForeignKey(
+            table="pull_requests", column="repo", other_table="repos", other_column="id"
+        ),
+        ForeignKey(
             table="pull_requests", column="user", other_table="users", other_column="id"
         ),
-    } == set(db["pull_requests"].foreign_keys)
+    }
 
 
 def test_pull_requests(db):
@@ -74,7 +80,7 @@ def test_pull_requests(db):
             "mergeable": None,
             "rebaseable": None,
             "mergeable_state": "unknown",
-            "merged_by": '{"login": "simonw", "id": 9599, "node_id": "MDQ6VXNlcjk1OTk=", "avatar_url": "https://avatars0.githubusercontent.com/u/9599?v=4", "gravatar_id": "", "url": "https://api.github.com/users/simonw", "html_url": "https://github.com/simonw", "followers_url": "https://api.github.com/users/simonw/followers", "following_url": "https://api.github.com/users/simonw/following{/other_user}", "gists_url": "https://api.github.com/users/simonw/gists{/gist_id}", "starred_url": "https://api.github.com/users/simonw/starred{/owner}{/repo}", "subscriptions_url": "https://api.github.com/users/simonw/subscriptions", "organizations_url": "https://api.github.com/users/simonw/orgs", "repos_url": "https://api.github.com/users/simonw/repos", "events_url": "https://api.github.com/users/simonw/events{/privacy}", "received_events_url": "https://api.github.com/users/simonw/received_events", "type": "User", "site_admin": false}',
+            "merged_by": 9599,
             "comments": 0,
             "review_comments": 0,
             "maintainer_can_modify": 0,
@@ -106,9 +112,15 @@ def test_users(db):
 
 
 def test_foreign_keys(db):
-    assert [
+    assert db["pull_requests"].foreign_keys == [
         ForeignKey(
             table="pull_requests", column="repo", other_table="repos", other_column="id"
+        ),
+        ForeignKey(
+            table="pull_requests",
+            column="merged_by",
+            other_table="users",
+            other_column="id",
         ),
         ForeignKey(
             table="pull_requests",
@@ -125,4 +137,4 @@ def test_foreign_keys(db):
         ForeignKey(
             table="pull_requests", column="user", other_table="users", other_column="id"
         ),
-    ] == db["pull_requests"].foreign_keys
+    ]

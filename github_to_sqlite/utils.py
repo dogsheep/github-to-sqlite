@@ -173,6 +173,9 @@ def save_pull_requests(db, pull_requests, repo):
         # Extract user
         pull_request["user"] = save_user(db, pull_request["user"])
         labels = pull_request.pop("labels")
+        # Extract merged_by, if it exists
+        if pull_request.get("merged_by"):
+            pull_request["merged_by"] = save_user(db, pull_request["merged_by"])
         # Head sha
         pull_request["head"] = pull_request["head"]["sha"]
         pull_request["base"] = pull_request["base"]["sha"]
@@ -196,6 +199,7 @@ def save_pull_requests(db, pull_requests, repo):
             pk="id",
             foreign_keys=[
                 ("user", "users", "id"),
+                ("merged_by", "users", "id"),
                 ("assignee", "users", "id"),
                 ("milestone", "milestones", "id"),
                 ("repo", "repos", "id"),
@@ -209,6 +213,7 @@ def save_pull_requests(db, pull_requests, repo):
                 "repo": int,
                 "title": str,
                 "body": str,
+                "merged_by": int,
             },
         )
         # m2m for labels
