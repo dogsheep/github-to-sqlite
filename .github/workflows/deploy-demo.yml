@@ -54,31 +54,31 @@ jobs:
           --csv --no-headers | while read repo;
             do github-to-sqlite releases \
                     github.db $(echo $repo | tr -d '\r');
-                sleep 2;
+                sleep 10;
                 github-to-sqlite commits \
                     github.db $(echo $repo | tr -d '\r');
-                sleep 2;
+                sleep 10;
                 github-to-sqlite tags \
                     github.db $(echo $repo | tr -d '\r');
-                sleep 2;
+                sleep 10;
                 github-to-sqlite contributors \
                     github.db $(echo $repo | tr -d '\r');
-                sleep 2;
+                sleep 10;
                 github-to-sqlite issues \
                     github.db $(echo $repo | tr -d '\r');
-                sleep 2;
+                sleep 10;
                 github-to-sqlite pull-requests \
                     github.db $(echo $repo | tr -d '\r');
-                sleep 2;
+                sleep 10;
                 github-to-sqlite issue-comments \
                     github.db $(echo $repo | tr -d '\r');
-                sleep 2;
+                sleep 10;
                 github-to-sqlite stargazers \
                     github.db $(echo $repo | tr -d '\r');
-                sleep 2;
+                sleep 10;
                 github-to-sqlite workflows \
                     github.db $(echo $repo | tr -d '\r');
-                sleep 2;
+                sleep 10;
             done;
         # Scrape dependents
         github-to-sqlite scrape-dependents github.db simonw/datasette simonw/sqlite-utils -v
