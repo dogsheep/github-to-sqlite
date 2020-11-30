@@ -65,6 +65,8 @@ You can use the `--issue` option one or more times to load specific issues:
 
     $ github-to-sqlite issues github.db simonw/datasette --issue=1
 
+Example: [issues table](https://github-to-sqlite.dogsheep.net/github/issues)
+
 ## Fetching pull requests for a repository
 
 While pull requests are a type of issue, you will get more information on pull requests by pulling them separately. For example, whether a pull request has been merged and when.
@@ -79,6 +81,8 @@ You can use the `--pull-request` option one or more times to load specific pull 
 
 Note that the `merged_by` column on the `pull_requests` table will only be populated for pull requests that are loaded using the `--pull-request` option - the GitHub API does not return this field for pull requests that are loaded in bulk.
 
+Example: [pull_requests table](https://github-to-sqlite.dogsheep.net/github/pull_requests)
+
 ## Fetching issue comments for a repository
 
 The `issue-comments` command retrieves all of the comments on all of the issues in a repository.
@@ -92,6 +96,8 @@ You can use the `--issue` option to only load comments for a specific issue with
 
     $ github-to-sqlite issue-comments github.db simonw/datasette --issue=1
 
+Example: [issue_comments table](https://github-to-sqlite.dogsheep.net/github/issue_comments)
+
 ## Fetching commits for a repository
 
 The `commits` command retrieves details of all of the commits for one or more repositories. It currently fetches the sha, commit message and author and committer details - it does no retrieve the full commit body.
@@ -102,11 +108,15 @@ The command accepts one or more repositories.
 
 By default it will stop as soon as it sees a commit that has previously been retrieved. You can force it to retrieve all commits (including those that have been previously inserted) using `--all`.
 
+Example: [commits table](https://github-to-sqlite.dogsheep.net/github/commits)
+
 ## Fetching tags for a repository
 
 The `tags` command retrieves all of the tags for one or more repositories.
 
     $ github-to-sqlite tags github.db simonw/datasette simonw/sqlite-utils
+
+Example: [tags table](https://github-to-sqlite.dogsheep.net/github/tags)
 
 ## Fetching contributors to a repository
 
@@ -115,6 +125,8 @@ The `contributors` command retrieves details of all of the contributors for one 
     $ github-to-sqlite contributors github.db simonw/datasette simonw/sqlite-utils
 
 The command accepts one or more repositories. It populates a `contributors` table, with foreign keys to `repos` and `users` and a `contributions` table listing the number of commits to that repository for each contributor.
+
+Example: [contributors table](https://github-to-sqlite.dogsheep.net/github/contributors)
 
 ## Fetching repos belonging to a user or organization
 
@@ -135,6 +147,8 @@ You can pass more than one username to fetch for multiple users or organizations
 
 Add the `--readme` option to save the README for the repo in a column called `readme`. Add `--readme-html` to save the HTML rendered version of the README into a collumn called `readme_html`.
 
+Example: [repos table](https://github-to-sqlite.dogsheep.net/github/repos)
+
 ## Fetching specific repositories
 
 You can use `-r` with the `repos` command one or more times to fetch just specific repositories.
@@ -148,6 +162,8 @@ The `starred` command fetches the repos that have been starred by a user.
     $ github-to-sqlite starred github.db simonw
 
 If you are using an `auth.json` file you can omit the username to retrieve the starred repos for the authenticated user.
+
+Example: [stars table](https://github-to-sqlite.dogsheep.net/github/stars)
 
 ## Fetching users that have starred specific repos
 
@@ -167,6 +183,8 @@ The `workflows` command fetches the YAML workflow configurations from each repos
 
 You can specify one or more repository using `owner/repo` syntax.
 
+Example: [workflows table](https://github-to-sqlite.dogsheep.net/github/workflows), [jobs table](https://github-to-sqlite.dogsheep.net/github/jobs), [steps table](https://github-to-sqlite.dogsheep.net/github/steps)
+
 ## Scraping dependents for a repository
 
 The GitHub dependency graph can show other GitHub projects that depend on a specific repo, for example [simonw/datasette/network/dependents](https://github.com/simonw/datasette/network/dependents).
@@ -178,6 +196,8 @@ This data is not yet available through the GitHub API. The `scrape-dependents` c
 The command accepts one or more repositories.
 
 Add `-v` for verbose output.
+
+Example: [dependents table](https://github-to-sqlite.dogsheep.net/github/dependents)
 
 ## Fetching emojis
 
@@ -193,6 +213,8 @@ If you add the `--fetch` option the command will also fetch the binary content o
     [########----------------------------]  397/1799   22%  00:03:43
 
 You can then use the [datasette-render-images](https://github.com/simonw/datasette-render-images) plugin to browse them visually.
+
+Example: [emojis table](https://github-to-sqlite.dogsheep.net/github/emojis)
 
 ## Making authenticated API calls
 
