@@ -110,6 +110,16 @@ By default it will stop as soon as it sees a commit that has previously been ret
 
 Example: [commits table](https://github-to-sqlite.dogsheep.net/github/commits)
 
+## Fetching releases for a repository
+
+The `releases` command retrieves the releases for one or more repositories.
+
+    $ github-to-sqlite releases github.db simonw/datasette simonw/sqlite-utils
+
+The command accepts one or more repositories.
+
+Example: [releases table](https://github-to-sqlite.dogsheep.net/github/releases)
+
 ## Fetching tags for a repository
 
 The `tags` command retrieves all of the tags for one or more repositories.
