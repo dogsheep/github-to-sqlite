@@ -178,7 +178,9 @@ def save_pull_requests(db, pull_requests, repo):
         pull_request["base"] = pull_request["base"]["sha"]
         # Extract milestone
         if pull_request["milestone"]:
-            pull_request["milestone"] = save_milestone(db, pull_request["milestone"], repo["id"])
+            pull_request["milestone"] = save_milestone(
+                db, pull_request["milestone"], repo["id"]
+            )
         # For the moment we ignore the assignees=[] array but we DO turn assignee
         # singular into a foreign key reference
         pull_request.pop("assignees", None)
@@ -329,21 +331,30 @@ def save_license(db, license):
     return db["licenses"].insert(license, pk="key", replace=True).last_pk
 
 
-def fetch_issues(repo, token=None, issue=None):
+def fetch_issues(repo, token=None, issue_ids=None):
     headers = make_headers(token)
-    if issue is not None:
-        url = "https://api.github.com/repos/{}/issues/{}".format(repo, issue)
-        yield from [requests.get(url).json()]
+    if issue_ids is not None:
+        for issue_id in issue_ids:
+            url = "https://api.github.com/repos/{}/issues/{}".format(repo, issue_id)
+            response = requests.get(url)
+            response.raise_for_status()
+            yield response.json()
     else:
         url = "https://api.github.com/repos/{}/issues?state=all&filter=all".format(repo)
         for issues in paginate(url, headers):
             yield from issues
 
-def fetch_pull_requests(repo, token=None, pull_request=None):
+
+def fetch_pull_requests(repo, token=None, pull_request_ids=None):
     headers = make_headers(token)
-    if pull_request is not None:
-        url = "https://api.github.com/repos/{}/pulls/{}".format(repo, pull_request)
-        yield from [requests.get(url).json()]
+    if pull_request_ids is not None:
+        for pull_request_id in pull_request_ids:
+            url = "https://api.github.com/repos/{}/pulls/{}".format(
+                repo, pull_request_id
+            )
+            response = requests.get(url)
+            response.raise_for_status()
+            yield response.json()
     else:
         url = "https://api.github.com/repos/{}/pulls?state=all&filter=all".format(repo)
         for pull_requests in paginate(url, headers):

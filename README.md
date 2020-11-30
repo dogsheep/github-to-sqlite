@@ -61,19 +61,19 @@ You can point to a different location of `auth.json` using `-a`:
 
     $ github-to-sqlite issues github.db simonw/datasette -a /path/to/auth.json
 
-You can use the `--issue` option to only load just one specific issue:
+You can use the `--issue` option one or more times to load specific issues:
 
     $ github-to-sqlite issues github.db simonw/datasette --issue=1
 
-## Fetching pull-requests for a repository
+## Fetching pull requests for a repository
 
-While pull-requests are a type of issue, you will get more information on pull-requests by pulling them separately. For example, whether a pull-request has been merged and when.
+While pull requests are a type of issue, you will get more information on pull requests by pulling them separately. For example, whether a pull request has been merged and when.
 
-Following the API of issues, the `pull-requests` command retrieves all of the pull-requests belonging to a specified repository.
+Following the API of issues, the `pull-requests` command retrieves all of the pull requests belonging to a specified repository.
 
     $ github-to-sqlite pull-requests github.db simonw/datasette
 
-You can use the `--pull-request` option to only load just one specific pull-request:
+You can use the `--pull-request` option one or more times to load specific pull request:
 
     $ github-to-sqlite pull-requests github.db simonw/datasette --pull-request=81
 

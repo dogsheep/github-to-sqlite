@@ -42,8 +42,14 @@ def auth(auth):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
     required=True,
 )
-@click.argument("repo", required=False)
-@click.option("--issue", help="Just pull this issue number")
+@click.argument("repo")
+@click.option(
+    "--issue",
+    "issue_ids",
+    help="Just pull these issue numbers",
+    type=int,
+    multiple=True,
+)
 @click.option(
     "-a",
     "--auth",
@@ -56,19 +62,21 @@ def auth(auth):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
     help="Load issues JSON from this file instead of the API",
 )
-def issues(db_path, repo, issue, auth, load):
+def issues(db_path, repo, issue_ids, auth, load):
     "Save issues for a specified repository, e.g. simonw/datasette"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
     repo_full = utils.fetch_repo(repo, token)
+    utils.save_repo(db, repo_full)
     if load:
         issues = json.load(open(load))
     else:
-        issues = utils.fetch_issues(repo, token, issue)
+        issues = utils.fetch_issues(repo, token, issue_ids)
 
     issues = list(issues)
     utils.save_issues(db, issues, repo_full)
     utils.ensure_db_shape(db)
+
 
 @cli.command(name="pull-requests")
 @click.argument(
@@ -77,7 +85,13 @@ def issues(db_path, repo, issue, auth, load):
     required=True,
 )
 @click.argument("repo", required=False)
-@click.option("--pull-request", help="Just pull this pull-request number")
+@click.option(
+    "--pull-request",
+    "pull_request_ids",
+    help="Just pull these pull-request numbers",
+    type=int,
+    multiple=True,
+)
 @click.option(
     "-a",
     "--auth",
@@ -90,15 +104,16 @@ def issues(db_path, repo, issue, auth, load):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
     help="Load pull-requests JSON from this file instead of the API",
 )
-def pull_requests(db_path, repo, pull_request, auth, load):
+def pull_requests(db_path, repo, pull_request_ids, auth, load):
     "Save pull_requests for a specified repository, e.g. simonw/datasette"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
     repo_full = utils.fetch_repo(repo, token)
+    utils.save_repo(db, repo_full)
     if load:
         pull_requests = json.load(open(load))
     else:
-        pull_requests = utils.fetch_pull_requests(repo, token, pull_request)
+        pull_requests = utils.fetch_pull_requests(repo, token, pull_request_ids)
 
     pull_requests = list(pull_requests)
     utils.save_pull_requests(db, pull_requests, repo_full)
