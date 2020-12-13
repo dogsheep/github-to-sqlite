@@ -28,7 +28,7 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install sqlite-utils>=2.18
+        pip install sqlite-utils>=3.1
         sqlite-utils --version
         pip install -e .
         pip install datasette
@@ -89,6 +89,8 @@ jobs:
         github-to-sqlite emojis github.db --fetch
         # Rebuild FTS tables
         sqlite-utils rebuild-fts github.db
+        # Populate _analyze_tables_ table
+        sqlite-utils analyze-tables github.db --save
     - uses: actions/upload-artifact@v2
       with:
         path: github.db
