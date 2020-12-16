@@ -1,5 +1,6 @@
 import base64
 import requests
+import re
 import time
 import yaml
 
@@ -766,9 +767,29 @@ def fetch_readme(token, full_name, html=False):
     if response.status_code != 200:
         return None
     if html:
-        return response.text
+        return rewrite_readme_html(response.text)
     else:
         return base64.b64decode(response.json()["content"]).decode("utf-8")
+
+
+_href_re = re.compile(r'\shref="#([^"]+)"')
+_id_re = re.compile(r'\sid="([^"]+)"')
+
+
+def rewrite_readme_html(html):
+    # href="#filtering-tables" => href="#user-content-filtering-tables"
+    hrefs = set(_href_re.findall(html))
+    ids = _id_re.findall(html)
+    for href in hrefs:
+        if "user-content-{}".format(href) not in ids:
+            continue
+        if href.startswith("user-content-"):
+            continue
+        # This href should be rewritten to user-content
+        html = html.replace(
+            ' href="#{}"'.format(href), ' href="#user-content-{}"'.format(href)
+        )
+    return html
 
 
 def fetch_workflows(token, full_name):

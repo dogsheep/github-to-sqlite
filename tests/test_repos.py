@@ -8,6 +8,17 @@ from click.testing import CliRunner
 from github_to_sqlite import cli
 import pytest
 
+README_HTML = """
+<li><a href="#filtering-tables">Filtering tables</a></li>
+...
+<h3><a id="user-content-filtering-tables" class="anchor" aria-hidden="true" href="#filtering-tables">#</a>Filtering tables</h3>
+"""
+EXPECTED_README_HTML = """
+<li><a href="#user-content-filtering-tables">Filtering tables</a></li>
+...
+<h3><a id="user-content-filtering-tables" class="anchor" aria-hidden="true" href="#user-content-filtering-tables">#</a>Filtering tables</h3>
+"""
+
 
 @pytest.fixture
 def mocked(requests_mock):
@@ -21,27 +32,14 @@ def mocked(requests_mock):
     )
     requests_mock.get(
         "https://api.github.com/repos/dogsheep/github-to-sqlite/readme",
-        text="<h1>This is the README</h1>",
+        text=README_HTML,
         additional_matcher=lambda request: request.headers.get("accept")
         == "application/vnd.github.VERSION.html",
     )
 
 
 def test_repos(mocked, tmpdir):
-    runner = CliRunner()
-    db_path = str(tmpdir / "test.db")
-    result = runner.invoke(
-        cli.cli,
-        [
-            "repos",
-            db_path,
-            "-r",
-            "dogsheep/github-to-sqlite",
-            "--readme",
-            "--readme-html",
-        ],
-    )
-    assert 0 == result.exit_code
+    db_path = _run_repos(tmpdir)
     db = sqlite_utils.Database(db_path)
     assert db.table_names() == [
         "users",
@@ -67,11 +65,10 @@ def test_repos(mocked, tmpdir):
     repo = next(iter(db["repos"].rows))
     assert repo["full_name"] == "dogsheep/github-to-sqlite"
     assert repo["readme"] == "# This is the README"
-    assert repo["readme_html"] == "<h1>This is the README</h1>"
+    assert repo["readme_html"] is not None
 
 
 def test_repos_readme_not_available(requests_mock, tmpdir):
-    runner = CliRunner()
     requests_mock.get(
         "https://api.github.com/repos/dogsheep/github-to-sqlite",
         json=json.load(open(pathlib.Path(__file__).parent / "repo.json")),
@@ -80,6 +77,23 @@ def test_repos_readme_not_available(requests_mock, tmpdir):
         "https://api.github.com/repos/dogsheep/github-to-sqlite/readme",
         status_code=400,
     )
+    db_path = _run_repos(tmpdir)
+    db = sqlite_utils.Database(db_path)
+    row = list(db["repos"].rows)[0]
+    assert row["name"] == "github-to-sqlite"
+    assert row["readme"] is None
+    assert row["readme_html"] is None
+
+
+def test_readme_internal_links_are_rewritten(mocked, tmpdir):
+    # https://github.com/dogsheep/github-to-sqlite/issues/58
+    db_path = _run_repos(tmpdir)
+    db = sqlite_utils.Database(db_path)
+    assert list(db["repos"].rows)[0]["readme_html"] == EXPECTED_README_HTML
+
+
+def _run_repos(tmpdir):
+    runner = CliRunner()
     db_path = str(tmpdir / "test.db")
     result = runner.invoke(
         cli.cli,
@@ -93,8 +107,4 @@ def test_repos_readme_not_available(requests_mock, tmpdir):
         ],
     )
     assert 0 == result.exit_code
-    db = sqlite_utils.Database(db_path)
-    row = list(db["repos"].rows)[0]
-    assert row["name"] == "github-to-sqlite"
-    assert row["readme"] is None
-    assert row["readme_html"] is None
+    return db_path
