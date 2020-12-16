@@ -763,7 +763,8 @@ def fetch_readme(token, full_name, html=False):
         headers["accept"] = "application/vnd.github.VERSION.html"
     url = "https://api.github.com/repos/{}/readme".format(full_name)
     response = requests.get(url, headers=headers)
-    response.raise_for_status()
+    if response.status_code != 200:
+        return None
     if html:
         return response.text
     else:
