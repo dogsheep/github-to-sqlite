@@ -192,7 +192,7 @@ def starred(db_path, username, auth, load):
 @click.option(
     "-a",
     "--auth",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
     default="auth.json",
     help="Path to auth.json token file",
 )
@@ -585,7 +585,7 @@ def get(url, auth, paginate, nl, accept):
 @click.option(
     "-a",
     "--auth",
-    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
     default="auth.json",
     help="Path to auth.json token file",
 )
