@@ -35,7 +35,7 @@ jobs:
         pip install bs4
     - name: Create auth.json
       env:
-        GITHUB_ACCESS_TOKEN: ${{ secrets.GITHUB_ACCESS_TOKEN }}
+        GITHUB_ACCESS_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         echo "{\"github_personal_token\": \"$GITHUB_ACCESS_TOKEN\"}" > auth.json
     - name: Fetch previous copy of database
