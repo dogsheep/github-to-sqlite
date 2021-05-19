@@ -244,7 +244,7 @@ def stargazers(db_path, repos, auth):
     help="Fetch HTML rendered README into 'readme_html' column",
 )
 def repos(db_path, usernames, auth, repo, load, readme, readme_html):
-    "Save repos owened by the specified (or authenticated) username or organization"
+    "Save repos owned by the specified (or authenticated) username or organization"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
     if load:
