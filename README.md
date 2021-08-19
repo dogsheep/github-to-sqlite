@@ -80,7 +80,7 @@ You can use the `--pull-request` option one or more times to load specific pull 
 
     $ github-to-sqlite pull-requests github.db simonw/datasette --pull-request=81
 
-Note that the `merged_by` column on the `pull_requests` table will only be populated for pull requests that are loaded using the `--pull-request` option - the GitHub API does not return this field for pull requests that are loaded in bulk.
+Note that the `merged_by` column on the `pull_requests` table will only be populated for pull requests that are loaded using the `--pull-request` or `--merged-by` (for bulk) options - the GitHub API does not return this field for pull requests that are loaded in bulk natively.
 
 Example: [pull_requests table](https://github-to-sqlite.dogsheep.net/github/pull_requests)
 

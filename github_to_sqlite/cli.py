@@ -104,7 +104,13 @@ def issues(db_path, repo, issue_ids, auth, load):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
     help="Load pull-requests JSON from this file instead of the API",
 )
-def pull_requests(db_path, repo, pull_request_ids, auth, load):
+@click.option(
+    "--merged-by",
+    help="Enable getting missing 'merged_by' attribute when requesting all PRs",
+    required=False,
+    is_flag=True
+)
+def pull_requests(db_path, repo, pull_request_ids, auth, load, merged_by):
     "Save pull_requests for a specified repository, e.g. simonw/datasette"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
@@ -114,6 +120,15 @@ def pull_requests(db_path, repo, pull_request_ids, auth, load):
         pull_requests = json.load(open(load))
     else:
         pull_requests = utils.fetch_pull_requests(repo, token, pull_request_ids)
+        if merged_by and not pull_request_ids:
+            pull_requests = list(pull_requests)
+            merged_ids = [item['number'] for item in pull_requests if item["merged_at"] is not None]
+            # fetch all merged prs by id to get missing 'merged_by' field
+            pull_requests_merged = list(utils.fetch_pull_requests(repo, token, merged_ids))
+            
+            for m, m_item in enumerate(pull_requests_merged):
+                update=next(i for i, item in enumerate(pull_requests) if item["id"] == m_item['id'])
+                pull_requests[update]=pull_requests_merged[m]
 
     pull_requests = list(pull_requests)
     utils.save_pull_requests(db, pull_requests, repo_full)
