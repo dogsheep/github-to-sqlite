@@ -845,6 +845,10 @@ def save_workflow(db, repo_id, filename, content):
     db["workflows"].create_index(["repo", "filename"], unique=True, if_not_exists=True)
     for job_name, job_details in jobs.items():
         steps = job_details.pop("steps", None) or []
+        # Removing ID from step and adding step_id
+        for i, step in enumerate(steps):
+            if 'id' in steps[i]:
+                steps[i]['step_id'] = steps[i].pop('id')
         job_id = (
             db["jobs"]
             .insert(
