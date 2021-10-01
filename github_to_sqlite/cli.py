@@ -601,6 +601,32 @@ def workflows(db_path, repos, auth):
             utils.save_workflow(db, repo_id, filename, content)
     utils.ensure_db_shape(db)
 
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.argument("org", type=str, nargs=1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def teams(db_path, org, auth):
+    "Fetch details of GitHub teams for the given org"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    teams = utils.fetch_teams(org, token=token)
+    
+    for team in teams:
+        utils.save_team(db, team)
+        members_url = team["members_url"].replace("{/member}", "")
+        members = utils.fetch_team_members(members_url, token=token)
+        utils.save_team_members(db, team, members)
+
 
 def load_token(auth):
     try:

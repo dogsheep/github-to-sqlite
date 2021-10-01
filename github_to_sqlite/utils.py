@@ -461,6 +461,17 @@ def fetch_user(username=None, token=None):
         url = "https://api.github.com/user"
     return requests.get(url, headers=headers).json()
 
+def fetch_teams(org, token=None):
+    headers = make_headers(token)
+    url = "https://api.github.com/orgs/{}/teams".format(org)
+    for teams in paginate(url, headers=headers):
+        yield from teams
+
+def fetch_team_members(url, token=None):
+    headers = make_headers(token)
+    for members in paginate(url, headers=headers):
+        yield from members
+
 
 def paginate(url, headers=None):
     while url:
@@ -878,3 +889,24 @@ def save_workflow(db, repo_id, filename, content):
             pk="id",
             foreign_keys=["job", "repo"],
         )
+
+def save_team(db, team):
+    team_to_insert = {
+        key: value for key, value in team.items() if not key.endswith("url")
+    }
+    db["teams"].upsert(team, pk="id")
+
+def save_team_members(db, team, members):
+    members_to_insert=[]
+    for member in members:
+        save_user(db, member);
+        members_to_insert.append({
+            "team": team["id"],
+            "member": member["id"],
+        })
+
+    db["team_members"].upsert_all(
+        members_to_insert, 
+        pk=["team", "member"],
+        foreign_keys=(("team", "teams", "id"), ("member", "users", "id")),
+    )
