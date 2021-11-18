@@ -208,7 +208,7 @@ The command accepts one or more repositories.
 
 Add `-v` for verbose output.
 
-Example: [dependents table](https://github-to-sqlite.dogsheep.net/github/dependents)
+Example: [dependents table](https://github-to-sqlite.dogsheep.net/github/dependents?_sort_desc=first_seen_utc)
 
 ## Fetching emojis
 
