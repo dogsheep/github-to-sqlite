@@ -539,7 +539,7 @@ def emojis(db_path, auth, fetch):
     help="Accept header to send, e.g. application/vnd.github.VERSION.html",
 )
 def get(url, auth, paginate, nl, accept):
-    "Save repos owened by the specified (or authenticated) username or organization"
+    "Make an authenticated HTTP GET against the specified URL"
     token = load_token(auth)
     first = True
     should_output_closing_brace = not nl
