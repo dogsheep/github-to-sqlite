@@ -115,4 +115,5 @@ jobs:
             --install=datasette-json-html \
             --install=datasette-vega \
             --install=datasette-render-images \
-            --install=datasette-graphql
+            --install=datasette-graphql \
+            --install=datasette-atom
