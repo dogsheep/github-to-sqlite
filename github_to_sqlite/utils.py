@@ -708,10 +708,31 @@ def ensure_db_shape(db):
 
 
 def scrape_dependents(repo, verbose=False):
+    from bs4 import BeautifulSoup
+    url = "https://github.com/{}/network/dependents".format(repo)
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content, "html.parser")
+    # Navigate through Package toggle if present
+    options = soup.find_all("a", class_="select-menu-item")
+    links = []
+    if len(options) > 0:
+        for link in options:
+            links.append(link['href'])
+    else:
+        links.append(f"{repo}/network/dependents")
+
+    if verbose:
+        print(links)
+
+    for link in links:
+        yield from _scrape_dependents(f"https://github.com/{link}", verbose=verbose)
+
+
+
+def _scrape_dependents(url, verbose=False):
     # Optional dependency:
     from bs4 import BeautifulSoup
 
-    url = "https://github.com/{}/network/dependents".format(repo)
     while url:
         if verbose:
             print(url)
