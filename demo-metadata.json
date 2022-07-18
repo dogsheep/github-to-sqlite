@@ -45,10 +45,7 @@
                                 "span": [
                                     "class"
                                 ]
-                            },
-                            "extensions": [
-                                "mdx_gfm:GithubFlavoredMarkdownExtension"
-                            ]
+                            }
                         }
                     }
                 },
@@ -89,10 +86,7 @@
                                 "span": [
                                     "class"
                                 ]
-                            },
-                            "extensions": [
-                                "mdx_gfm:GithubFlavoredMarkdownExtension"
-                            ]
+                            }
                         }
                     }
                 },
@@ -138,10 +132,7 @@
                                 "span": [
                                     "class"
                                 ]
-                            },
-                            "extensions": [
-                                "mdx_gfm:GithubFlavoredMarkdownExtension"
-                            ]
+                            }
                         }
                     }
                 },
@@ -180,10 +171,7 @@
                                 "span": [
                                     "class"
                                 ]
-                            },
-                            "extensions": [
-                                "mdx_gfm:GithubFlavoredMarkdownExtension"
-                            ]
+                            }
                         }
                     }
                 }
