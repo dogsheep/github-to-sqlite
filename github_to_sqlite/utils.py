@@ -223,6 +223,11 @@ def save_pull_requests(db, pull_requests, repo):
 
 
 def save_user(db, user):
+    # Under some conditions, GitHub caches removed repositories with  
+    # stars and ends up leaving dangling `None` user references.
+    if user is None:
+        return None
+    
     # Remove all url fields except avatar_url and html_url
     to_save = {
         key: value
