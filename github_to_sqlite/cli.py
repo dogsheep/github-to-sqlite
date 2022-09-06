@@ -243,7 +243,12 @@ def stargazers(db_path, repos, auth):
     is_flag=True,
     help="Fetch HTML rendered README into 'readme_html' column",
 )
-def repos(db_path, usernames, auth, repo, load, readme, readme_html):
+@click.option(
+    "--organization",
+    is_flag=True,
+    help="The given users are organizations",
+)
+def repos(db_path, usernames, auth, repo, load, readme, readme_html, organization):
     "Save repos owned by the specified (or authenticated) username or organization"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
@@ -260,7 +265,7 @@ def repos(db_path, usernames, auth, repo, load, readme, readme_html):
             if not usernames:
                 usernames = [None]
             for username in usernames:
-                for repo in utils.fetch_all_repos(username, token):
+                for repo in utils.fetch_all_repos(username, token, organization):
                     repo_id = utils.save_repo(db, repo)
                     _repo_readme(
                         db, token, repo_id, repo["full_name"], readme, readme_html
