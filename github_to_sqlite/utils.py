@@ -74,16 +74,17 @@ FOREIGN_KEYS = [
 
 
 class GitHubError(Exception):
-    def __init__(self, message, status_code):
+    def __init__(self, message, status_code, headers=None):
         self.message = message
         self.status_code = status_code
+        self.headers = headers
 
     @classmethod
     def from_response(cls, response):
         message = response.json()["message"]
         if "git repository is empty" in message.lower():
             cls = GitHubRepositoryEmpty
-        return cls(message, response.status_code)
+        return cls(message, response.status_code, response.headers)
 
 
 class GitHubRepositoryEmpty(GitHubError):
