@@ -731,7 +731,7 @@ def scrape_dependents(repo, verbose=False):
         yield from repos
         # next page?
         try:
-            next_link = soup.select(".paginate-container")[0].find("a", text="Next")
+            next_link = soup.select(".paginate-container")[0].find("a", string="Next")
         except IndexError:
             break
         if next_link is not None:
