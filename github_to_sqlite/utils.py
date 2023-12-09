@@ -469,6 +469,7 @@ def fetch_user(username=None, token=None):
 
 
 def paginate(url, headers=None):
+    url += ("&" if "?" in url else "?") + "per_page=100"
     while url:
         response = requests.get(url, headers=headers)
         # For HTTP 204 no-content this yields an empty list
