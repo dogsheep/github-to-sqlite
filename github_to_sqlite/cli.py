@@ -1,5 +1,6 @@
 import click
 import datetime
+import itertools
 import pathlib
 import textwrap
 import os
@@ -104,19 +105,38 @@ def issues(db_path, repo, issue_ids, auth, load):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
     help="Load pull-requests JSON from this file instead of the API",
 )
-def pull_requests(db_path, repo, pull_request_ids, auth, load):
+@click.option(
+    "--org",
+    "orgs",
+    help="Fetch all pull requests from this GitHub organization",
+    multiple=True,
+)
+@click.option(
+    "--state",
+    help="Only fetch pull requests in this state",
+)
+def pull_requests(db_path, repo, pull_request_ids, auth, load, orgs, state):
     "Save pull_requests for a specified repository, e.g. simonw/datasette"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
-    repo_full = utils.fetch_repo(repo, token)
-    utils.save_repo(db, repo_full)
     if load:
+        repo_full = utils.fetch_repo(repo, token)
+        utils.save_repo(db, repo_full)
         pull_requests = json.load(open(load))
+        utils.save_pull_requests(db, pull_requests, repo_full)
     else:
-        pull_requests = utils.fetch_pull_requests(repo, token, pull_request_ids)
-
-    pull_requests = list(pull_requests)
-    utils.save_pull_requests(db, pull_requests, repo_full)
+        if orgs:
+            repos = itertools.chain.from_iterable(
+                utils.fetch_all_repos(token=token, org=org)
+                for org in orgs
+            )
+        else:
+            repos = [utils.fetch_repo(repo, token)]
+        for repo_full in repos:
+            utils.save_repo(db, repo_full)
+            repo = repo_full["full_name"]
+            pull_requests = utils.fetch_pull_requests(repo, state, token, pull_request_ids)
+            utils.save_pull_requests(db, pull_requests, repo_full)
     utils.ensure_db_shape(db)
 
 

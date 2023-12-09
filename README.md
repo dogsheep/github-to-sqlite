@@ -82,6 +82,14 @@ You can use the `--pull-request` option one or more times to load specific pull 
 
 Note that the `merged_by` column on the `pull_requests` table will only be populated for pull requests that are loaded using the `--pull-request` option - the GitHub API does not return this field for pull requests that are loaded in bulk.
 
+You can load only pull requests in a certain state with the `--state` option:
+
+    $ github-to-sqlite pull-requests --state=open github.db simonw/datasette
+
+Pull requests across an entire organization (or more than one) can be loaded with `--org`:
+
+    $ github-to-sqlite pull-requests --state=open --org=psf --org=python github.db
+
 Example: [pull_requests table](https://github-to-sqlite.dogsheep.net/github/pull_requests)
 
 ## Fetching issue comments for a repository

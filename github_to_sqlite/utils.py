@@ -358,7 +358,7 @@ def fetch_issues(repo, token=None, issue_ids=None):
             yield from issues
 
 
-def fetch_pull_requests(repo, token=None, pull_request_ids=None):
+def fetch_pull_requests(repo, state=None, token=None, pull_request_ids=None):
     headers = make_headers(token)
     headers["accept"] = "application/vnd.github.v3+json"
     if pull_request_ids:
@@ -370,7 +370,8 @@ def fetch_pull_requests(repo, token=None, pull_request_ids=None):
             response.raise_for_status()
             yield response.json()
     else:
-        url = "https://api.github.com/repos/{}/pulls?state=all&filter=all".format(repo)
+        state = state or "all"
+        url = f"https://api.github.com/repos/{repo}/pulls?state={state}"
         for pull_requests in paginate(url, headers):
             yield from pull_requests
 
@@ -445,13 +446,15 @@ def fetch_stargazers(repo, token=None):
         yield from stargazers
 
 
-def fetch_all_repos(username=None, token=None):
-    assert username or token, "Must provide username= or token= or both"
+def fetch_all_repos(username=None, token=None, org=None):
+    assert username or token or org, "Must provide username= or token= or org= or a combination"
     headers = make_headers(token)
     # Get topics for each repo:
     headers["Accept"] = "application/vnd.github.mercy-preview+json"
     if username:
         url = "https://api.github.com/users/{}/repos".format(username)
+    elif org:
+        url = "https://api.github.com/orgs/{}/repos".format(org)
     else:
         url = "https://api.github.com/user/repos"
     for repos in paginate(url, headers):
