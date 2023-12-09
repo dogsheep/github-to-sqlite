@@ -115,7 +115,11 @@ def issues(db_path, repo, issue_ids, auth, load):
     "--state",
     help="Only fetch pull requests in this state",
 )
-def pull_requests(db_path, repo, pull_request_ids, auth, load, orgs, state):
+@click.option(
+    "--search",
+    help="Find pull requests with a search query",
+)
+def pull_requests(db_path, repo, pull_request_ids, auth, load, orgs, state, search):
     "Save pull_requests for a specified repository, e.g. simonw/datasette"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
@@ -124,6 +128,17 @@ def pull_requests(db_path, repo, pull_request_ids, auth, load, orgs, state):
         utils.save_repo(db, repo_full)
         pull_requests = json.load(open(load))
         utils.save_pull_requests(db, pull_requests, repo_full)
+    elif search:
+        repos_seen = set()
+        search += " is:pr"
+        pull_requests = utils.fetch_searched_pulls_or_issues(search, token)
+        for pull_request in pull_requests:
+            pr_repo_url = pull_request["repository_url"]
+            if pr_repo_url not in repos_seen:
+                pr_repo = utils.fetch_repo(url=pr_repo_url)
+                utils.save_repo(db, pr_repo)
+                repos_seen.add(pr_repo_url)
+            utils.save_pull_requests(db, [pull_request], pr_repo)
     else:
         if orgs:
             repos = itertools.chain.from_iterable(

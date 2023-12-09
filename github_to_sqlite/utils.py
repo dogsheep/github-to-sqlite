@@ -2,6 +2,7 @@ import base64
 import requests
 import re
 import time
+import urllib.parse
 import yaml
 
 FTS_CONFIG = {
@@ -170,8 +171,11 @@ def save_pull_requests(db, pull_requests, repo):
         # Add repo key
         pull_request["repo"] = repo["id"]
         # Pull request _links can be flattened to just their URL
-        pull_request["url"] = pull_request["_links"]["html"]["href"]
-        pull_request.pop("_links")
+        if "_links" in pull_request:
+            pull_request["url"] = pull_request["_links"]["html"]["href"]
+            pull_request.pop("_links")
+        else:
+            pull_request["url"] = pull_request["pull_request"]["html_url"]
         # Extract user
         pull_request["user"] = save_user(db, pull_request["user"])
         labels = pull_request.pop("labels")
@@ -179,8 +183,9 @@ def save_pull_requests(db, pull_requests, repo):
         if pull_request.get("merged_by"):
             pull_request["merged_by"] = save_user(db, pull_request["merged_by"])
         # Head sha
-        pull_request["head"] = pull_request["head"]["sha"]
-        pull_request["base"] = pull_request["base"]["sha"]
+        if "head" in pull_request:
+            pull_request["head"] = pull_request["head"]["sha"]
+            pull_request["base"] = pull_request["base"]["sha"]
         # Extract milestone
         if pull_request["milestone"]:
             pull_request["milestone"] = save_milestone(
@@ -292,12 +297,13 @@ def save_issue_comment(db, comment):
     return last_pk
 
 
-def fetch_repo(full_name, token=None):
+def fetch_repo(full_name=None, token=None, url=None):
     headers = make_headers(token)
     # Get topics:
     headers["Accept"] = "application/vnd.github.mercy-preview+json"
-    owner, slug = full_name.split("/")
-    url = "https://api.github.com/repos/{}/{}".format(owner, slug)
+    if url is None:
+        owner, slug = full_name.split("/")
+        url = "https://api.github.com/repos/{}/{}".format(owner, slug)
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     return response.json()
@@ -374,6 +380,14 @@ def fetch_pull_requests(repo, state=None, token=None, pull_request_ids=None):
         url = f"https://api.github.com/repos/{repo}/pulls?state={state}"
         for pull_requests in paginate(url, headers):
             yield from pull_requests
+
+
+def fetch_searched_pulls_or_issues(query, token=None):
+    headers = make_headers(token)
+    url = "https://api.github.com/search/issues?"
+    url += urllib.parse.urlencode({"q": query})
+    for pulls_or_issues in paginate(url, headers):
+        yield from pulls_or_issues["items"]
 
 
 def fetch_issue_comments(repo, token=None, issue=None):

@@ -90,6 +90,10 @@ Pull requests across an entire organization (or more than one) can be loaded wit
 
     $ github-to-sqlite pull-requests --state=open --org=psf --org=python github.db
 
+You can use a search query to find pull requests.  Note that no more than 1000 will be loaded (this is a GitHub API limitation), and some data will be missing (base and head SHAs).  When using searches, other filters are ignored; put all criteria into the search itself:
+
+    $ github-to-sqlite pull-requests --search='org:python defaultdict state:closed created:<2023-09-01' github.db
+
 Example: [pull_requests table](https://github-to-sqlite.dogsheep.net/github/pull_requests)
 
 ## Fetching issue comments for a repository
