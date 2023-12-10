@@ -2,6 +2,7 @@ import base64
 import requests
 import re
 import time
+import urllib.parse
 import yaml
 
 FTS_CONFIG = {
@@ -170,8 +171,11 @@ def save_pull_requests(db, pull_requests, repo):
         # Add repo key
         pull_request["repo"] = repo["id"]
         # Pull request _links can be flattened to just their URL
-        pull_request["url"] = pull_request["_links"]["html"]["href"]
-        pull_request.pop("_links")
+        if "_links" in pull_request:
+            pull_request["url"] = pull_request["_links"]["html"]["href"]
+            pull_request.pop("_links")
+        else:
+            pull_request["url"] = pull_request["pull_request"]["html_url"]
         # Extract user
         pull_request["user"] = save_user(db, pull_request["user"])
         labels = pull_request.pop("labels")
@@ -179,8 +183,9 @@ def save_pull_requests(db, pull_requests, repo):
         if pull_request.get("merged_by"):
             pull_request["merged_by"] = save_user(db, pull_request["merged_by"])
         # Head sha
-        pull_request["head"] = pull_request["head"]["sha"]
-        pull_request["base"] = pull_request["base"]["sha"]
+        if "head" in pull_request:
+            pull_request["head"] = pull_request["head"]["sha"]
+            pull_request["base"] = pull_request["base"]["sha"]
         # Extract milestone
         if pull_request["milestone"]:
             pull_request["milestone"] = save_milestone(
@@ -292,12 +297,13 @@ def save_issue_comment(db, comment):
     return last_pk
 
 
-def fetch_repo(full_name, token=None):
+def fetch_repo(full_name=None, token=None, url=None):
     headers = make_headers(token)
     # Get topics:
     headers["Accept"] = "application/vnd.github.mercy-preview+json"
-    owner, slug = full_name.split("/")
-    url = "https://api.github.com/repos/{}/{}".format(owner, slug)
+    if url is None:
+        owner, slug = full_name.split("/")
+        url = "https://api.github.com/repos/{}/{}".format(owner, slug)
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     return response.json()
@@ -358,7 +364,7 @@ def fetch_issues(repo, token=None, issue_ids=None):
             yield from issues
 
 
-def fetch_pull_requests(repo, token=None, pull_request_ids=None):
+def fetch_pull_requests(repo, state=None, token=None, pull_request_ids=None):
     headers = make_headers(token)
     headers["accept"] = "application/vnd.github.v3+json"
     if pull_request_ids:
@@ -370,9 +376,18 @@ def fetch_pull_requests(repo, token=None, pull_request_ids=None):
             response.raise_for_status()
             yield response.json()
     else:
-        url = "https://api.github.com/repos/{}/pulls?state=all&filter=all".format(repo)
+        state = state or "all"
+        url = f"https://api.github.com/repos/{repo}/pulls?state={state}"
         for pull_requests in paginate(url, headers):
             yield from pull_requests
+
+
+def fetch_searched_pulls_or_issues(query, token=None):
+    headers = make_headers(token)
+    url = "https://api.github.com/search/issues?"
+    url += urllib.parse.urlencode({"q": query})
+    for pulls_or_issues in paginate(url, headers):
+        yield from pulls_or_issues["items"]
 
 
 def fetch_issue_comments(repo, token=None, issue=None):
@@ -445,13 +460,15 @@ def fetch_stargazers(repo, token=None):
         yield from stargazers
 
 
-def fetch_all_repos(username=None, token=None):
-    assert username or token, "Must provide username= or token= or both"
+def fetch_all_repos(username=None, token=None, org=None):
+    assert username or token or org, "Must provide username= or token= or org= or a combination"
     headers = make_headers(token)
     # Get topics for each repo:
     headers["Accept"] = "application/vnd.github.mercy-preview+json"
     if username:
         url = "https://api.github.com/users/{}/repos".format(username)
+    elif org:
+        url = "https://api.github.com/orgs/{}/repos".format(org)
     else:
         url = "https://api.github.com/user/repos"
     for repos in paginate(url, headers):
@@ -469,6 +486,7 @@ def fetch_user(username=None, token=None):
 
 
 def paginate(url, headers=None):
+    url += ("&" if "?" in url else "?") + "per_page=100"
     while url:
         response = requests.get(url, headers=headers)
         # For HTTP 204 no-content this yields an empty list

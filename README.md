@@ -82,13 +82,25 @@ You can use the `--pull-request` option one or more times to load specific pull 
 
 Note that the `merged_by` column on the `pull_requests` table will only be populated for pull requests that are loaded using the `--pull-request` option - the GitHub API does not return this field for pull requests that are loaded in bulk.
 
+You can load only pull requests in a certain state with the `--state` option:
+
+    $ github-to-sqlite pull-requests --state=open github.db simonw/datasette
+
+Pull requests across an entire organization (or more than one) can be loaded with `--org`:
+
+    $ github-to-sqlite pull-requests --state=open --org=psf --org=python github.db
+
+You can use a search query to find pull requests.  Note that no more than 1000 will be loaded (this is a GitHub API limitation), and some data will be missing (base and head SHAs).  When using searches, other filters are ignored; put all criteria into the search itself:
+
+    $ github-to-sqlite pull-requests --search='org:python defaultdict state:closed created:<2023-09-01' github.db
+
 Example: [pull_requests table](https://github-to-sqlite.dogsheep.net/github/pull_requests)
 
 ## Fetching issue comments for a repository
 
 The `issue-comments` command retrieves all of the comments on all of the issues in a repository.
 
-It is recommended you run `issues` first, so that each imported comment can have a foreign key poining to its issue.
+It is recommended you run `issues` first, so that each imported comment can have a foreign key pointing to its issue.
 
     $ github-to-sqlite issues github.db simonw/datasette
     $ github-to-sqlite issue-comments github.db simonw/datasette
@@ -101,7 +113,7 @@ Example: [issue_comments table](https://github-to-sqlite.dogsheep.net/github/iss
 
 ## Fetching commits for a repository
 
-The `commits` command retrieves details of all of the commits for one or more repositories. It currently fetches the sha, commit message and author and committer details - it does no retrieve the full commit body.
+The `commits` command retrieves details of all of the commits for one or more repositories. It currently fetches the SHA, commit message and author and committer details; it does not retrieve the full commit body.
 
     $ github-to-sqlite commits github.db simonw/datasette simonw/sqlite-utils
 
@@ -156,7 +168,7 @@ You can pass more than one username to fetch for multiple users or organizations
 
     $ github-to-sqlite repos github.db simonw dogsheep
 
-Add the `--readme` option to save the README for the repo in a column called `readme`. Add `--readme-html` to save the HTML rendered version of the README into a collumn called `readme_html`.
+Add the `--readme` option to save the README for the repo in a column called `readme`. Add `--readme-html` to save the HTML rendered version of the README into a column called `readme_html`.
 
 Example: [repos table](https://github-to-sqlite.dogsheep.net/github/repos)
 
@@ -216,7 +228,7 @@ You can fetch a list of every emoji supported by GitHub using the `emojis` comma
 
     $ github-to-sqlite emojis github.db
 
-This will create a table callad `emojis` with a primary key `name` and a `url` column.
+This will create a table called `emojis` with a primary key `name` and a `url` column.
 
 If you add the `--fetch` option the command will also fetch the binary content of the images and place them in an `image` column:
 
@@ -235,7 +247,7 @@ The `github-to-sqlite get` command provides a convenient shortcut for making aut
 
 This will make an authenticated call to the URL you provide and pretty-print the resulting JSON to the console.
 
-You can ommit the `https://api.github.com/` prefix, for example:
+You can omit the `https://api.github.com/` prefix, for example:
 
     $ github-to-sqlite get /gists
 
