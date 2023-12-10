@@ -445,15 +445,19 @@ def fetch_stargazers(repo, token=None):
         yield from stargazers
 
 
-def fetch_all_repos(username=None, token=None):
+def fetch_all_repos(username=None, token=None, organization=False):
     assert username or token, "Must provide username= or token= or both"
     headers = make_headers(token)
     # Get topics for each repo:
     headers["Accept"] = "application/vnd.github.mercy-preview+json"
     if username:
         url = "https://api.github.com/users/{}/repos".format(username)
+        if organization:
+            url = "https://api.github.com/orgs/{}/repos".format(username)
     else:
         url = "https://api.github.com/user/repos"
+        if organization:
+            url = "https://api.github.com/orgs/{}/repos".format(username)
     for repos in paginate(url, headers):
         yield from repos
 
