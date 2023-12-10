@@ -12,19 +12,14 @@ jobs:
   scheduled:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       name: Check out repo
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
-        python-version: "3.9"
-    - uses: actions/cache@v1
-      name: Configure pip caching
-      with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+        python-version: "3.12"
+        cache: pip
+        cache-dependency-path: setup.py
     - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
@@ -91,7 +86,7 @@ jobs:
         sqlite-utils rebuild-fts github.db
         # Populate _analyze_tables_ table
         sqlite-utils analyze-tables github.db --save
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         path: github.db
     - name: Set up Cloud Run
