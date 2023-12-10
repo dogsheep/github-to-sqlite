@@ -602,6 +602,39 @@ def workflows(db_path, repos, auth):
     utils.ensure_db_shape(db)
 
 
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+@click.option(
+    "--load",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True, exists=True),
+    help="Load gists JSON from this file instead of the API",
+)
+def gists(db_path, auth, load):
+    "Save Gists for authenticated user"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    if token is None:
+        raise click.ClickException("User must be authenticated")
+    if load:
+        gists_full = json.load(open(load))
+    else:
+        gists_full = utils.fetch_gists(token)
+
+    utils.save_gists(db, gists_full)
+    utils.ensure_db_shape(db)
+
+
 def load_token(auth):
     try:
         token = json.load(open(auth))["github_personal_token"]

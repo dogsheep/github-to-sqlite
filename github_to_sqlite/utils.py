@@ -224,11 +224,11 @@ def save_pull_requests(db, pull_requests, repo):
 
 
 def save_user(db, user):
-    # Under some conditions, GitHub caches removed repositories with  
+    # Under some conditions, GitHub caches removed repositories with
     # stars and ends up leaving dangling `None` user references.
     if user is None:
         return None
-    
+
     # Remove all url fields except avatar_url and html_url
     to_save = {
         key: value
@@ -884,3 +884,34 @@ def save_workflow(db, repo_id, filename, content):
             pk="id",
             foreign_keys=["job", "repo"],
         )
+
+
+# gists_full = utils.fetch_gists(token)
+
+# utils.save_gists(db, gists_full)
+# utils.ensure_db_shape(db)
+
+
+def fetch_gists(token):
+    headers = make_headers(token)
+    headers["accept"] = "application/vnd.github+json"
+    for gists in paginate("https://api.github.com/gists", headers):
+        yield from gists
+
+
+def save_gists(db, gists):
+    # For each gist need to fetch the raw file content
+    gists_table = db.table("gists")
+    gist_files_table = db.table("gist_files")
+    for gist in gists:
+        id = gist["id"]
+        gists_table.insert(gist, pk="id", alter=True, replace=True)
+        for file in gist["files"].values():
+            file["id"] = "{}:{}".format(id, file["filename"])
+            file["gist"] = id
+            # Try to retrieve the content
+            response = requests.get(file["raw_url"])
+
+            gist_files_table.insert(
+                file, pk="id", alter=True, replace=True, foreign_keys=["gist"]
+            )
