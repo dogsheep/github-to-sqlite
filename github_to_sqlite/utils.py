@@ -317,8 +317,14 @@ def save_repo(db, repo):
         for key, value in repo.items()
         if (key == "html_url") or not key.endswith("url")
     }
-    to_save["owner"] = save_user(db, to_save["owner"])
-    to_save["license"] = save_license(db, to_save["license"])
+    if "owner" in to_save:
+        to_save["owner"] = save_user(db, to_save["owner"])
+    else:
+        to_save["owner"] = None
+    if "license" in to_save:
+        to_save["license"] = save_license(db, to_save["license"])
+    else:
+        to_save["license"] = None
     if "organization" in to_save:
         to_save["organization"] = save_user(db, to_save["organization"])
     else:
@@ -415,6 +421,13 @@ def fetch_contributors(repo, token=None):
     url = "https://api.github.com/repos/{}/contributors".format(repo)
     for contributors in paginate(url, headers):
         yield from contributors
+
+
+def fetch_events(ns, token=None):
+    headers = make_headers(token)
+    url = "https://api.github.com/{}/events".format(ns)
+    for events in paginate(url, headers):
+        yield from events
 
 
 def fetch_tags(repo, token=None):
@@ -584,6 +597,35 @@ def save_contributors(db, contributors, repo_id):
         contributor_rows_to_add,
         pk=("repo_id", "user_id"),
         foreign_keys=[("repo_id", "repos", "id"), ("user_id", "users", "id")],
+        replace=True,
+    )
+
+
+def save_events(db, events, ns):
+    event_rows_to_add = []
+    for event in events:
+        user_id = save_user(db, event["actor"])
+        repo_id = save_repo(db, event["repo"])
+        created_at = event["created_at"]
+        public = bool(event["public"])
+        event_rows_to_add.append({
+            "user_id": user_id,
+            "repo_id": repo_id,
+            "created_at": created_at,
+            "public": public,
+            "type": event["type"],
+            "payload": event["payload"],
+        })
+    db["events"].insert_all(
+        event_rows_to_add,
+        pk=(
+            "repo_id",
+            "user_id",
+        ),
+        foreign_keys=[
+            ("repo_id", "repos", "id"),
+            ("user_id", "users", "id")
+        ],
         replace=True,
     )
 

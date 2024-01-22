@@ -405,6 +405,31 @@ def contributors(db_path, repos, auth):
     type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
     required=True,
 )
+@click.argument("namespaces", type=str, nargs=-1)
+@click.option(
+    "-a",
+    "--auth",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=True),
+    default="auth.json",
+    help="Path to auth.json token file",
+)
+def events(db_path, namespaces, auth):
+    "Save events for the specified namespaces"
+    db = sqlite_utils.Database(db_path)
+    token = load_token(auth)
+    for ns in namespaces:
+        events = utils.fetch_events(ns, token)
+        utils.save_events(db, events, ns)
+        time.sleep(1)
+    utils.ensure_db_shape(db)
+
+
+@cli.command()
+@click.argument(
+    "db_path",
+    type=click.Path(file_okay=True, dir_okay=False, allow_dash=False),
+    required=True,
+)
 @click.argument("repos", type=str, nargs=-1)
 @click.option(
     "--all",
