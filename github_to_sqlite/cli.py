@@ -269,6 +269,12 @@ def stargazers(db_path, repos, auth):
     help="Load repos JSON from this file instead of the API",
 )
 @click.option(
+    "--org",
+    "orgs",
+    help="Fetch all pull requests from this GitHub organization",
+    multiple=True,
+)
+@click.option(
     "--readme",
     is_flag=True,
     help="Fetch README into 'readme' column",
@@ -278,7 +284,7 @@ def stargazers(db_path, repos, auth):
     is_flag=True,
     help="Fetch HTML rendered README into 'readme_html' column",
 )
-def repos(db_path, usernames, auth, repo, load, readme, readme_html):
+def repos(db_path, usernames, auth, repo, load, orgs, readme, readme_html):
     "Save repos owned by the specified (or authenticated) username or organization"
     db = sqlite_utils.Database(db_path)
     token = load_token(auth)
@@ -292,14 +298,20 @@ def repos(db_path, usernames, auth, repo, load, readme, readme_html):
                 repo_id = utils.save_repo(db, utils.fetch_repo(full_name, token))
                 _repo_readme(db, token, repo_id, full_name, readme, readme_html)
         else:
-            if not usernames:
+            repo_lists = []
+            if orgs:
+                repo_lists.extend(utils.fetch_all_repos(None, token, org) for org in orgs)
+            elif not usernames:
+                # if an org was specified, don't fetch the current user's repos
                 usernames = [None]
-            for username in usernames:
-                for repo in utils.fetch_all_repos(username, token):
-                    repo_id = utils.save_repo(db, repo)
-                    _repo_readme(
-                        db, token, repo_id, repo["full_name"], readme, readme_html
-                    )
+
+            repo_lists.extend(utils.fetch_all_repos(username, token) for username in usernames)
+
+            for repo in itertools.chain(*repo_lists):
+                repo_id = utils.save_repo(db, repo)
+                _repo_readme(
+                    db, token, repo_id, repo["full_name"], readme, readme_html
+                )
     utils.ensure_db_shape(db)
 
 
