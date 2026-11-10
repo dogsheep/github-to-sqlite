@@ -1,4 +1,5 @@
 import base64
+import click
 import requests
 import re
 import time
@@ -302,6 +303,11 @@ def fetch_repo(full_name=None, token=None, url=None):
     # Get topics:
     headers["Accept"] = "application/vnd.github.mercy-preview+json"
     if url is None:
+        if not full_name or full_name.count("/") != 1:
+            raise click.ClickException(
+                "Invalid repository {!r}: expected format 'owner/name', "
+                "for example 'simonw/datasette'".format(full_name)
+            )
         owner, slug = full_name.split("/")
         url = "https://api.github.com/repos/{}/{}".format(owner, slug)
     response = requests.get(url, headers=headers)
